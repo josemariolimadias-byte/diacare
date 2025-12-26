@@ -123,13 +123,13 @@ const App: React.FC = () => {
     setActiveTab('logs');
   };
 
-  // Verifica a existência da API_KEY
-  const apiKey = (process.env as any).API_KEY;
-  const isApiConnected = !!apiKey;
-  const apiKeySuffix = isApiConnected ? apiKey.slice(-4) : '';
+  // Verifica a existência da API_KEY (injetada pelo vite.config.ts)
+  const envApiKey = (process.env as any).API_KEY;
+  const isApiConnected = typeof envApiKey === 'string' && envApiKey.length > 0;
+  const apiKeySuffix = isApiConnected ? envApiKey.slice(-4) : '';
 
   return (
-    <div className="min-h-screen pb-24 md:pb-8 md:pl-64 bg-slate-50 flex flex-col items-stretch font-['Inter'] relative">
+    <div className="min-h-screen pb-24 md:pb-12 md:pl-64 bg-slate-50 flex flex-col items-stretch font-['Inter'] relative">
       {/* Sidebar Navigation */}
       <nav className="fixed bottom-0 left-0 w-full bg-blue-700 border-t border-blue-600/50 z-50 md:top-0 md:bottom-auto md:w-64 md:h-full md:border-t-0 md:border-r flex md:flex-col shadow-2xl md:shadow-none transition-colors duration-300">
         <div className="hidden md:flex flex-col p-8 border-b border-blue-600/30 mb-4 gap-6">
@@ -208,11 +208,11 @@ const App: React.FC = () => {
 
       {/* Fixed API Status Footer */}
       {isApiConnected && (
-        <footer className="fixed bottom-24 md:bottom-0 left-0 md:left-64 right-0 z-[60] bg-white/70 backdrop-blur-md border-t border-slate-200 py-1.5 px-6 flex items-center justify-center md:justify-end gap-3 pointer-events-none transition-all">
+        <footer className="fixed bottom-24 md:bottom-0 left-0 md:left-64 right-0 z-[60] bg-white/80 backdrop-blur-md border-t border-slate-200 py-2 px-6 flex items-center justify-center md:justify-end gap-3 pointer-events-none transition-all">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]"></div>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-              API CONECTADA: <span className="text-slate-800">****{apiKeySuffix}</span>
+            <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.8)]"></div>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">
+              API CONECTADA <span className="text-slate-300 mx-1">|</span> <span className="text-slate-800">****{apiKeySuffix}</span>
             </span>
           </div>
         </footer>

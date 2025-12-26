@@ -9,6 +9,20 @@ import SettingsPage from './components/SettingsPage';
 import Onboarding from './components/Onboarding';
 import Auth from './components/Auth';
 
+// Fix: Defined the NavItem component which was missing from the file
+const NavItem: React.FC<{ active: boolean; onClick: () => void; icon: string; label: string }> = ({ active, onClick, icon, label }) => (
+  <button
+    onClick={onClick}
+    className={`flex flex-col md:flex-row items-center gap-2 md:gap-4 py-3 md:py-4 px-4 md:px-5 rounded-2xl transition-all w-full group
+      ${active 
+        ? 'bg-white text-blue-700 shadow-lg md:shadow-none' 
+        : 'text-blue-100 hover:bg-blue-600/50'}`}
+  >
+    <span className="text-xl">{icon}</span>
+    <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">{label}</span>
+  </button>
+);
+
 const App: React.FC = () => {
   const [authUser, setAuthUser] = useState<AuthUser | null>(StorageService.getCurrentAuthUser());
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -110,10 +124,6 @@ const App: React.FC = () => {
     setActiveTab('logs');
   };
 
-  // Obtém os últimos 4 dígitos da chave de API
-  const apiKeySuffix = process.env.API_KEY ? process.env.API_KEY.slice(-4) : '****';
-  const isApiConnected = !!process.env.API_KEY;
-
   return (
     <div className="min-h-screen pb-24 md:pb-0 md:pl-64 bg-slate-50 flex flex-col items-stretch font-['Inter']">
       {/* Sidebar Navigation */}
@@ -150,85 +160,50 @@ const App: React.FC = () => {
           </button>
         </div>
 
-        {/* API Status Info (Desktop Sidebar Bottom) */}
-        {isApiConnected && (
-          <div className="hidden md:flex flex-col p-6 gap-2">
-            <div className="flex items-center gap-2 px-3 py-2 bg-blue-800/30 rounded-xl border border-white/5">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
-              <span className="text-[10px] font-black text-blue-100 uppercase tracking-widest">API CONECTADA</span>
-            </div>
-            <span className="text-[9px] text-blue-300 font-bold ml-1">CHAVE: ****{apiKeySuffix}</span>
-          </div>
-        )}
-        
-        <div className="hidden md:block p-6 mt-2">
+        <div className="hidden md:block p-6 mt-2 border-t border-blue-600/30">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-4 py-4 px-5 rounded-2xl transition-all w-full group text-blue-100 hover:bg-red-500/20 hover:text-red-100 font-bold border border-transparent hover:border-red-400/30"
+            className="flex items-center gap-4 py-4 px-5 rounded-2xl transition-all w-full group text-blue-100 hover:bg-red-500/20 hover:text-red-200"
           >
-            <span className="text-xl transition-transform group-hover:scale-110">🚪</span>
-            <span className="text-sm">Sair do Sistema</span>
+            <span className="text-xl">🚪</span>
+            <span className="text-xs font-black uppercase tracking-widest">Sair</span>
           </button>
         </div>
       </nav>
 
       {/* Main Content */}
-      <main className="p-4 md:p-8 w-full max-w-5xl mx-auto self-center flex-1 flex flex-col">
-        <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-slate-100 flex-1 flex flex-col">
-          <div className="flex-1">
-            {activeTab === 'dashboard' && (
-              <Dashboard 
-                user={userProfile} 
-                logs={logs} 
-                onDelete={deleteLog} 
-                onEdit={handleEditLog}
-                onNewRecord={handleNewLog}
-              />
-            )}
-            {activeTab === 'logs' && (
-              <LogForm
-                user={userProfile}
-                initialCarbs={pendingCarbs}
-                initialLog={editingLog}
-                onAdd={saveLog}
-                onCancel={() => {
-                    setActiveTab('dashboard');
-                    setPendingCarbs(0);
-                    setEditingLog(null);
-                }}
-              />
-            )}
-            {activeTab === 'plate' && <PlateBuilder onConsume={handleConsume} />}
-            {activeTab === 'settings' && <SettingsPage user={userProfile} setUser={(p: any) => setUserProfile(p)} />}
-          </div>
+      <main className="flex-1 p-6 md:p-12 overflow-y-auto">
+        {activeTab === 'dashboard' && (
+          <Dashboard 
+            user={userProfile} 
+            logs={logs} 
+            onDelete={deleteLog} 
+            onEdit={handleEditLog} 
+            onNewRecord={handleNewLog}
+          />
+        )}
+        
+        {activeTab === 'logs' && (
+          <LogForm 
+            user={userProfile} 
+            initialCarbs={pendingCarbs} 
+            initialLog={editingLog}
+            onAdd={saveLog}
+            onCancel={() => setActiveTab('dashboard')}
+          />
+        )}
 
-          {/* Rodapé da Página Mobile (Mobile Footer Above Nav) */}
-          <footer className="mt-8 pt-8 border-t border-slate-50 flex items-center justify-between">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">© 2025 DiaCare - Gestão de Diabetes</p>
-            {isApiConnected && (
-              <div className="md:hidden flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                <span className="text-[9px] font-black text-slate-500 uppercase">API: {apiKeySuffix}</span>
-              </div>
-            )}
-          </footer>
-        </div>
+        {activeTab === 'plate' && (
+          <PlateBuilder onConsume={handleConsume} />
+        )}
+
+        {activeTab === 'settings' && (
+          <SettingsPage user={userProfile} setUser={setUserProfile} />
+        )}
       </main>
     </div>
   );
 };
 
-const NavItem: React.FC<{ active: boolean; onClick: () => void; icon: string; label: string }> = ({ active, onClick, icon, label }) => (
-  <button
-    onClick={onClick}
-    className={`flex flex-col md:flex-row items-center gap-1 md:gap-4 py-3.5 px-5 rounded-2xl transition-all w-full group
-      ${active 
-        ? 'text-white bg-white/20 font-black shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]' 
-        : 'text-blue-100 hover:bg-white/10 font-medium'}`}
-  >
-    <span className={`text-xl transition-transform duration-300 group-hover:scale-110 ${active ? 'filter-none' : 'opacity-80'}`}>{icon}</span>
-    <span className="text-[10px] md:text-sm uppercase md:capitalize tracking-widest md:tracking-normal">{label}</span>
-  </button>
-);
-
+// Fix: Exported App as default to resolve the missing default export error in index.tsx
 export default App;

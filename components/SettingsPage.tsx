@@ -168,7 +168,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ user, setUser }) => {
             </div>
           </div>
           <div>
-             <label className="block text-xs font-bold text-slate-400 mb-1">Glicemia Muito Alta (> mg/dL)</label>
+             <label className="block text-xs font-bold text-slate-400 mb-1">{"Glicemia Muito Alta (> mg/dL)"}</label>
              <input
               type="number"
               value={user.hyperThreshold}
@@ -177,7 +177,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ user, setUser }) => {
             />
           </div>
           <div>
-             <label className="block text-xs font-bold text-slate-400 mb-1">Glicemia Muito Baixa (< mg/dL)</label>
+             <label className="block text-xs font-bold text-slate-400 mb-1">{"Glicemia Muito Baixa (< mg/dL)"}</label>
              <input
               type="number"
               value={user.hypoThreshold}

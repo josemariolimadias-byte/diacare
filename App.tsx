@@ -64,10 +64,6 @@ const App: React.FC = () => {
     return <Onboarding authUser={authUser} onComplete={setUserProfile} />;
   }
 
-  /**
-   * Executa o logout completo do sistema.
-   * Limpa o localStorage e reseta todos os estados da aplicação.
-   */
   const handleLogout = () => {
     if (window.confirm('Deseja realmente sair do sistema? Seus dados estão seguros e vinculados à sua conta.')) {
       StorageService.logout();
@@ -114,6 +110,10 @@ const App: React.FC = () => {
     setActiveTab('logs');
   };
 
+  // Obtém os últimos 4 dígitos da chave de API
+  const apiKeySuffix = process.env.API_KEY ? process.env.API_KEY.slice(-4) : '****';
+  const isApiConnected = !!process.env.API_KEY;
+
   return (
     <div className="min-h-screen pb-24 md:pb-0 md:pl-64 bg-slate-50 flex flex-col items-stretch font-['Inter']">
       {/* Sidebar Navigation */}
@@ -124,7 +124,6 @@ const App: React.FC = () => {
             <span className="text-xl font-black text-white tracking-tight">DiaCare</span>
           </div>
 
-          {/* User Info Section (Desktop) */}
           <div className="bg-blue-800/40 rounded-2xl p-4 border border-white/5 flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-black text-sm border-2 border-blue-400 shrink-0 shadow-lg">
               {userProfile.fullName.charAt(0).toUpperCase()}
@@ -136,7 +135,6 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Navigation Items */}
         <div className="flex-1 flex md:flex-col justify-around md:justify-start md:p-4 gap-1.5 overflow-x-auto scrollbar-hide">
           <NavItem active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon="📊" label="Início" />
           <NavItem active={activeTab === 'logs'} onClick={handleNewLog} icon="📝" label="Registrar" />
@@ -151,9 +149,19 @@ const App: React.FC = () => {
             <span className="text-[10px] uppercase tracking-widest">Sair</span>
           </button>
         </div>
+
+        {/* API Status Info (Desktop Sidebar Bottom) */}
+        {isApiConnected && (
+          <div className="hidden md:flex flex-col p-6 gap-2">
+            <div className="flex items-center gap-2 px-3 py-2 bg-blue-800/30 rounded-xl border border-white/5">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
+              <span className="text-[10px] font-black text-blue-100 uppercase tracking-widest">API CONECTADA</span>
+            </div>
+            <span className="text-[9px] text-blue-300 font-bold ml-1">CHAVE: ****{apiKeySuffix}</span>
+          </div>
+        )}
         
-        {/* Sair do Sistema (Desktop) */}
-        <div className="hidden md:block p-6 mt-auto">
+        <div className="hidden md:block p-6 mt-2">
           <button
             onClick={handleLogout}
             className="flex items-center gap-4 py-4 px-5 rounded-2xl transition-all w-full group text-blue-100 hover:bg-red-500/20 hover:text-red-100 font-bold border border-transparent hover:border-red-400/30"
@@ -165,32 +173,45 @@ const App: React.FC = () => {
       </nav>
 
       {/* Main Content */}
-      <main className="p-4 md:p-8 w-full max-w-5xl mx-auto self-center">
-        <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-slate-100 min-h-[calc(100vh-5rem)]">
-          {activeTab === 'dashboard' && (
-            <Dashboard 
-              user={userProfile} 
-              logs={logs} 
-              onDelete={deleteLog} 
-              onEdit={handleEditLog}
-              onNewRecord={handleNewLog}
-            />
-          )}
-          {activeTab === 'logs' && (
-            <LogForm
-              user={userProfile}
-              initialCarbs={pendingCarbs}
-              initialLog={editingLog}
-              onAdd={saveLog}
-              onCancel={() => {
-                  setActiveTab('dashboard');
-                  setPendingCarbs(0);
-                  setEditingLog(null);
-              }}
-            />
-          )}
-          {activeTab === 'plate' && <PlateBuilder onConsume={handleConsume} />}
-          {activeTab === 'settings' && <SettingsPage user={userProfile} setUser={(p: any) => setUserProfile(p)} />}
+      <main className="p-4 md:p-8 w-full max-w-5xl mx-auto self-center flex-1 flex flex-col">
+        <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-slate-100 flex-1 flex flex-col">
+          <div className="flex-1">
+            {activeTab === 'dashboard' && (
+              <Dashboard 
+                user={userProfile} 
+                logs={logs} 
+                onDelete={deleteLog} 
+                onEdit={handleEditLog}
+                onNewRecord={handleNewLog}
+              />
+            )}
+            {activeTab === 'logs' && (
+              <LogForm
+                user={userProfile}
+                initialCarbs={pendingCarbs}
+                initialLog={editingLog}
+                onAdd={saveLog}
+                onCancel={() => {
+                    setActiveTab('dashboard');
+                    setPendingCarbs(0);
+                    setEditingLog(null);
+                }}
+              />
+            )}
+            {activeTab === 'plate' && <PlateBuilder onConsume={handleConsume} />}
+            {activeTab === 'settings' && <SettingsPage user={userProfile} setUser={(p: any) => setUserProfile(p)} />}
+          </div>
+
+          {/* Rodapé da Página Mobile (Mobile Footer Above Nav) */}
+          <footer className="mt-8 pt-8 border-t border-slate-50 flex items-center justify-between">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">© 2025 DiaCare - Gestão de Diabetes</p>
+            {isApiConnected && (
+              <div className="md:hidden flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                <span className="text-[9px] font-black text-slate-500 uppercase">API: {apiKeySuffix}</span>
+              </div>
+            )}
+          </footer>
         </div>
       </main>
     </div>

@@ -1,0 +1,7 @@
+{
+  "name": "DiaCare - Diabetes Management",
+  "description": "A comprehensive tool for diabetes control, including carbohydrate counting, blood glucose logging, and personalized insulin bolus calculation based on sensitivity and carb ratios.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

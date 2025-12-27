@@ -23,168 +23,110 @@ export const BASAL_INSULINS = [
 
 export const DIABETES_TYPES = Object.values(DiabetesType);
 
+export const FOOD_DATABASE: FoodItem[] = [
+  {
+    id: 'f1',
+    name: 'Abacate',
+    category: 'Frutas',
+    variations: [
+      { label: 'Fatia média', carbsPerUnit: 3 },
+      { label: 'Unidade pequena', carbsPerUnit: 12 },
+      { label: 'Colher de sopa cheia', carbsPerUnit: 2 }
+    ]
+  },
+  {
+    id: 'f2',
+    name: 'Arroz Branco',
+    category: 'Massas e Grãos',
+    variations: [
+      { label: 'Colher de sopa rasa', carbsPerUnit: 5 },
+      { label: 'Colher de sopa cheia', carbsPerUnit: 7 },
+      { label: 'Escumadeira média', carbsPerUnit: 25 }
+    ]
+  },
+  {
+    id: 'f3',
+    name: 'Arroz Integral',
+    category: 'Massas e Grãos',
+    variations: [
+      { label: 'Colher de sopa cheia', carbsPerUnit: 6 },
+      { label: 'Escumadeira média', carbsPerUnit: 22 }
+    ]
+  },
+  {
+    id: 'f4',
+    name: 'Banana Prata',
+    category: 'Frutas',
+    variations: [
+      { label: 'Unidade pequena', carbsPerUnit: 12 },
+      { label: 'Unidade média', carbsPerUnit: 18 },
+      { label: 'Unidade grande', carbsPerUnit: 25 }
+    ]
+  },
+  {
+    id: 'f5',
+    name: 'Café (sem açúcar)',
+    category: 'Bebidas',
+    variations: [
+      { label: 'Xícara/Copo', carbsPerUnit: 0 }
+    ]
+  },
+  {
+    id: 'f6',
+    name: 'Feijão Preto',
+    category: 'Leguminosas',
+    variations: [
+      { label: 'Concha pequena', carbsPerUnit: 14 },
+      { label: 'Concha média', carbsPerUnit: 21 },
+      { label: 'Concha grande', carbsPerUnit: 28 },
+      { label: 'Colher de sopa cheia', carbsPerUnit: 5 }
+    ]
+  },
+  {
+    id: 'f7',
+    name: 'Maçã',
+    category: 'Frutas',
+    variations: [
+      { label: 'Unidade pequena', carbsPerUnit: 15 },
+      { label: 'Unidade média', carbsPerUnit: 20 },
+      { label: 'Unidade grande', carbsPerUnit: 30 }
+    ]
+  },
+  {
+    id: 'f8',
+    name: 'Pão de Sal (Francês)',
+    category: 'Padaria',
+    variations: [
+      { label: 'Unidade (50g)', carbsPerUnit: 28 },
+      { label: 'Metade', carbsPerUnit: 14 }
+    ]
+  },
+  {
+    id: 'f9',
+    name: 'Leite Integral',
+    category: 'Laticínios',
+    variations: [
+      { label: 'Copo (200ml)', carbsPerUnit: 10 }
+    ]
+  },
+  {
+    id: 'f10',
+    name: 'Iogurte Natural',
+    category: 'Laticínios',
+    variations: [
+      { label: 'Pote (170g)', carbsPerUnit: 9 }
+    ]
+  }
+];
+
 export const CATEGORIES = [
   'Frutas',
-  'Verduras e Legumes',
+  'Verduras',
   'Carnes e Ovos',
   'Massas e Grãos',
   'Leguminosas',
   'Laticínios',
   'Padaria',
-  'Lanches e Pratos',
-  'Bebidas',
-  'Temperos e Condimentos'
-];
-
-export const FOOD_DATABASE: FoodItem[] = [
-  // --- FRUTAS ---
-  { id: 'f1', name: 'Abacate', category: 'Frutas', variations: [{ label: 'Fatia média', carbsPerUnit: 3 }, { label: 'Colher de sopa', carbsPerUnit: 2 }] },
-  { id: 'f2', name: 'Abacaxi', category: 'Frutas', variations: [{ label: 'Fatia média', carbsPerUnit: 12 }, { label: 'Fatia grossa', carbsPerUnit: 18 }] },
-  { id: 'f3', name: 'Acerola', category: 'Frutas', variations: [{ label: 'Unidade', carbsPerUnit: 0.5 }, { label: 'Copo (10 unidades)', carbsPerUnit: 5 }] },
-  { id: 'f4', name: 'Banana Prata', category: 'Frutas', variations: [{ label: 'Unidade pequena', carbsPerUnit: 12 }, { label: 'Unidade média', carbsPerUnit: 18 }, { label: 'Unidade grande', carbsPerUnit: 25 }] },
-  { id: 'f5', name: 'Banana Nanica', category: 'Frutas', variations: [{ label: 'Unidade média', carbsPerUnit: 24 }] },
-  { id: 'f6', name: 'Caju', category: 'Frutas', variations: [{ label: 'Unidade média', carbsPerUnit: 10 }] },
-  { id: 'f7', name: 'Caqui', category: 'Frutas', variations: [{ label: 'Unidade média', carbsPerUnit: 20 }] },
-  { id: 'f8', name: 'Goiaba', category: 'Frutas', variations: [{ label: 'Unidade média', carbsPerUnit: 15 }] },
-  { id: 'f9', name: 'Jabuticaba', category: 'Frutas', variations: [{ label: 'Unidade', carbsPerUnit: 1 }, { label: 'Copo pequeno', carbsPerUnit: 15 }] },
-  { id: 'f10', name: 'Laranja', category: 'Frutas', variations: [{ label: 'Unidade média', carbsPerUnit: 15 }] },
-  { id: 'f11', name: 'Limão', category: 'Frutas', variations: [{ label: 'Unidade', carbsPerUnit: 2 }] },
-  { id: 'f12', name: 'Maçã', category: 'Frutas', variations: [{ label: 'Unidade pequena', carbsPerUnit: 15 }, { label: 'Unidade média', carbsPerUnit: 20 }] },
-  { id: 'f13', name: 'Mamão Papaia', category: 'Frutas', variations: [{ label: 'Metade', carbsPerUnit: 18 }, { label: 'Fatia média', carbsPerUnit: 9 }] },
-  { id: 'f14', name: 'Manga', category: 'Frutas', variations: [{ label: 'Fatia média', carbsPerUnit: 12 }, { label: 'Unidade média', carbsPerUnit: 30 }] },
-  { id: 'f15', name: 'Maracujá', category: 'Frutas', variations: [{ label: 'Unidade (polpa)', carbsPerUnit: 10 }] },
-  { id: 'f16', name: 'Melancia', category: 'Frutas', variations: [{ label: 'Fatia média', carbsPerUnit: 12 }] },
-  { id: 'f17', name: 'Melão', category: 'Frutas', variations: [{ label: 'Fatia média', carbsPerUnit: 8 }] },
-  { id: 'f18', name: 'Morango', category: 'Frutas', variations: [{ label: 'Unidade média', carbsPerUnit: 1 }, { label: 'Caixa (250g)', carbsPerUnit: 15 }] },
-  { id: 'f19', name: 'Pêra', category: 'Frutas', variations: [{ label: 'Unidade média', carbsPerUnit: 20 }] },
-  { id: 'f20', name: 'Tangerina (Mexerica)', category: 'Frutas', variations: [{ label: 'Unidade média', carbsPerUnit: 12 }] },
-  { id: 'f21', name: 'Uva', category: 'Frutas', variations: [{ label: 'Unidade', carbsPerUnit: 1 }, { label: 'Cacho pequeno (12 unid)', carbsPerUnit: 12 }] },
-
-  // --- VERDURAS E LEGUMES ---
-  { id: 'v1', name: 'Abóbora Cozida', category: 'Verduras e Legumes', variations: [{ label: 'Colher de sopa', carbsPerUnit: 3 }] },
-  { id: 'v2', name: 'Abobrinha Italiana', category: 'Verduras e Legumes', variations: [{ label: 'Fatia/Rodela', carbsPerUnit: 0.5 }, { label: 'Colher de sopa', carbsPerUnit: 1 }] },
-  { id: 'v3', name: 'Agrião', category: 'Verduras e Legumes', variations: [{ label: 'Pires cheio', carbsPerUnit: 1 }] },
-  { id: 'v4', name: 'Alface (Qualquer tipo)', category: 'Verduras e Legumes', variations: [{ label: 'Folha', carbsPerUnit: 0.2 }, { label: 'Prato de sobremesa', carbsPerUnit: 1 }] },
-  { id: 'v5', name: 'Berinjela Cozida', category: 'Verduras e Legumes', variations: [{ label: 'Colher de sopa', carbsPerUnit: 1.5 }] },
-  { id: 'v6', name: 'Beterraba Cozida', category: 'Verduras e Legumes', variations: [{ label: 'Fatia média', carbsPerUnit: 2 }, { label: 'Colher de sopa', carbsPerUnit: 3 }] },
-  { id: 'v7', name: 'Brócolis Cozido', category: 'Verduras e Legumes', variations: [{ label: 'Ramo médio', carbsPerUnit: 1 }, { label: 'Colher de sopa', carbsPerUnit: 1.5 }] },
-  { id: 'v8', name: 'Cenoura Crua', category: 'Verduras e Legumes', variations: [{ label: 'Colher de sopa ralada', carbsPerUnit: 2 }] },
-  { id: 'v9', name: 'Chuchu Cozido', category: 'Verduras e Legumes', variations: [{ label: 'Colher de sopa', carbsPerUnit: 1 }] },
-  { id: 'v10', name: 'Couve Manteiga Refogada', category: 'Verduras e Legumes', variations: [{ label: 'Colher de sopa', carbsPerUnit: 1 }] },
-  { id: 'v11', name: 'Couve-Flor', category: 'Verduras e Legumes', variations: [{ label: 'Ramo médio', carbsPerUnit: 1 }] },
-  { id: 'v12', name: 'Espinafre Refogado', category: 'Verduras e Legumes', variations: [{ label: 'Colher de sopa', carbsPerUnit: 1 }] },
-  { id: 'v13', name: 'Jiló', category: 'Verduras e Legumes', variations: [{ label: 'Unidade média', carbsPerUnit: 2 }] },
-  { id: 'v14', name: 'Pepino', category: 'Verduras e Legumes', variations: [{ label: 'Fatia', carbsPerUnit: 0.5 }] },
-  { id: 'v15', name: 'Pimentão (Cores)', category: 'Verduras e Legumes', variations: [{ label: 'Fatia/Rodela', carbsPerUnit: 0.5 }] },
-  { id: 'v16', name: 'Quiabo Cozido', category: 'Verduras e Legumes', variations: [{ label: 'Unidade', carbsPerUnit: 1 }] },
-  { id: 'v17', name: 'Repolho Refogado', category: 'Verduras e Legumes', variations: [{ label: 'Colher de sopa', carbsPerUnit: 1 }] },
-  { id: 'v18', name: 'Rúcula', category: 'Verduras e Legumes', variations: [{ label: 'Maço pequeno', carbsPerUnit: 1 }] },
-  { id: 'v19', name: 'Tomate', category: 'Verduras e Legumes', variations: [{ label: 'Fatia', carbsPerUnit: 0.5 }, { label: 'Unidade média', carbsPerUnit: 4 }] },
-  { id: 'v20', name: 'Vagem Cozida', category: 'Verduras e Legumes', variations: [{ label: 'Colher de sopa', carbsPerUnit: 2 }] },
-
-  // --- CARNES E OVOS (MAIORIA 0G CARBO OU MUITO BAIXO) ---
-  { id: 'c1', name: 'Almôndegas de Carne', category: 'Carnes e Ovos', variations: [{ label: 'Unidade média', carbsPerUnit: 3 }] },
-  { id: 'c2', name: 'Atum em Lata', category: 'Carnes e Ovos', variations: [{ label: 'Lata (drenado)', carbsPerUnit: 0 }] },
-  { id: 'c3', name: 'Bacalhau Cozido', category: 'Carnes e Ovos', variations: [{ label: 'Pedaço médio', carbsPerUnit: 0 }] },
-  { id: 'c4', name: 'Bacon Frito', category: 'Carnes e Ovos', variations: [{ label: 'Fatia', carbsPerUnit: 0 }] },
-  { id: 'c5', name: 'Bife (Alcatra/Contrafilé/Picanha)', category: 'Carnes e Ovos', variations: [{ label: 'Bife médio (100g)', carbsPerUnit: 0 }] },
-  { id: 'c6', name: 'Bisteca de Porco', category: 'Carnes e Ovos', variations: [{ label: 'Unidade média', carbsPerUnit: 0 }] },
-  { id: 'c7', name: 'Camarão Cozido', category: 'Carnes e Ovos', variations: [{ label: 'Unidade média', carbsPerUnit: 0 }] },
-  { id: 'c8', name: 'Carne de Panela', category: 'Carnes e Ovos', variations: [{ label: 'Pedaço médio', carbsPerUnit: 0 }] },
-  { id: 'c9', name: 'Carne Moída Refogada', category: 'Carnes e Ovos', variations: [{ label: 'Colher de sopa cheia', carbsPerUnit: 0 }] },
-  { id: 'c10', name: 'Carne Seca / Charque', category: 'Carnes e Ovos', variations: [{ label: 'Porção (100g)', carbsPerUnit: 0 }] },
-  { id: 'c11', name: 'Coração de Frango', category: 'Carnes e Ovos', variations: [{ label: 'Unidade', carbsPerUnit: 0 }] },
-  { id: 'c12', name: 'Costela Bovina', category: 'Carnes e Ovos', variations: [{ label: 'Pedaço médio', carbsPerUnit: 0 }] },
-  { id: 'c13', name: 'Costelinha Suína', category: 'Carnes e Ovos', variations: [{ label: 'Unidade', carbsPerUnit: 0 }] },
-  { id: 'c14', name: 'Coxa de Frango Assada', category: 'Carnes e Ovos', variations: [{ label: 'Unidade (com pele)', carbsPerUnit: 0 }] },
-  { id: 'c15', name: 'Cupim Assado', category: 'Carnes e Ovos', variations: [{ label: 'Fatia média', carbsPerUnit: 0 }] },
-  { id: 'c16', name: 'Fígado Bovino Acebolado', category: 'Carnes e Ovos', variations: [{ label: 'Bife médio', carbsPerUnit: 4 }] },
-  { id: 'c17', name: 'Filé de Peixe (Merluza/Tilápia)', category: 'Carnes e Ovos', variations: [{ label: 'Filé médio', carbsPerUnit: 0 }] },
-  { id: 'c18', name: 'Hambúrguer de Carne Artesanal', category: 'Carnes e Ovos', variations: [{ label: 'Unidade (120g)', carbsPerUnit: 0 }] },
-  { id: 'c19', name: 'Lombo Suíno', category: 'Carnes e Ovos', variations: [{ label: 'Fatia média', carbsPerUnit: 0 }] },
-  { id: 'c20', name: 'Mortadela / Presunto / Salame', category: 'Carnes e Ovos', variations: [{ label: 'Fatia', carbsPerUnit: 0.5 }] },
-  { id: 'c21', name: 'Ovo (Cozido/Frito/Mexido)', category: 'Carnes e Ovos', variations: [{ label: 'Unidade', carbsPerUnit: 0.5 }] },
-  { id: 'c22', name: 'Peito de Frango Grelhado', category: 'Carnes e Ovos', variations: [{ label: 'Filé médio (100g)', carbsPerUnit: 0 }] },
-  { id: 'c23', name: 'Salsicha', category: 'Carnes e Ovos', variations: [{ label: 'Unidade', carbsPerUnit: 1 }] },
-  { id: 'c24', name: 'Torresmo', category: 'Carnes e Ovos', variations: [{ label: 'Unidade média', carbsPerUnit: 0 }] },
-
-  // --- MASSAS E GRÃOS ---
-  { id: 'm1', name: 'Arroz Branco', category: 'Massas e Grãos', variations: [{ label: 'Colher de sopa cheia', carbsPerUnit: 6 }, { label: 'Escumadeira', carbsPerUnit: 25 }] },
-  { id: 'm2', name: 'Arroz Integral', category: 'Massas e Grãos', variations: [{ label: 'Colher de sopa cheia', carbsPerUnit: 5 }, { label: 'Escumadeira', carbsPerUnit: 22 }] },
-  { id: 'm3', name: 'Arroz Carreteiro', category: 'Massas e Grãos', variations: [{ label: 'Escumadeira', carbsPerUnit: 30 }] },
-  { id: 'm4', name: 'Aveia em Flocos', category: 'Massas e Grãos', variations: [{ label: 'Colher de sopa', carbsPerUnit: 9 }] },
-  { id: 'm5', name: 'Batata Doce Cozida', category: 'Massas e Grãos', variations: [{ label: 'Fatia média', carbsPerUnit: 12 }, { label: 'Unidade média', carbsPerUnit: 35 }] },
-  { id: 'm6', name: 'Batata Inglesa Cozida', category: 'Massas e Grãos', variations: [{ label: 'Unidade média', carbsPerUnit: 25 }, { label: 'Colher de sopa (purê)', carbsPerUnit: 6 }] },
-  { id: 'm7', name: 'Batata Palha', category: 'Massas e Grãos', variations: [{ label: 'Colher de sopa', carbsPerUnit: 5 }] },
-  { id: 'm8', name: 'Cuscuz de Milho', category: 'Massas e Grãos', variations: [{ label: 'Fatia média', carbsPerUnit: 25 }, { label: 'Colher de sopa cheia', carbsPerUnit: 8 }] },
-  { id: 'm9', name: 'Farinha de Mandioca / Farofa', category: 'Massas e Grãos', variations: [{ label: 'Colher de sopa', carbsPerUnit: 9 }] },
-  { id: 'm10', name: 'Grão-de-Bico Cozido', category: 'Massas e Grãos', variations: [{ label: 'Colher de sopa', carbsPerUnit: 5 }] },
-  { id: 'm11', name: 'Inhame / Cará Cozido', category: 'Massas e Grãos', variations: [{ label: 'Pedaço médio', carbsPerUnit: 15 }] },
-  { id: 'm12', name: 'Lentilha Cozida', category: 'Massas e Grãos', variations: [{ label: 'Concha média', carbsPerUnit: 20 }] },
-  { id: 'm13', name: 'Macarrão (Espaguete/Parafuso)', category: 'Massas e Grãos', variations: [{ label: 'Pegador médio', carbsPerUnit: 25 }, { label: 'Colher de sopa cheia', carbsPerUnit: 7 }] },
-  { id: 'm14', name: 'Mandioca (Aipim) Cozida', category: 'Massas e Grãos', variations: [{ label: 'Pedaço médio (100g)', carbsPerUnit: 30 }] },
-  { id: 'm15', name: 'Milho Verde', category: 'Massas e Grãos', variations: [{ label: 'Espiga média', carbsPerUnit: 25 }, { label: 'Colher de sopa', carbsPerUnit: 5 }] },
-  { id: 'm16', name: 'Polenta Cozida', category: 'Massas e Grãos', variations: [{ label: 'Fatia média', carbsPerUnit: 15 }, { label: 'Colher de sopa', carbsPerUnit: 8 }] },
-  { id: 'm17', name: 'Tapioca (Goma)', category: 'Massas e Grãos', variations: [{ label: 'Colher de sopa', carbsPerUnit: 7 }, { label: 'Unidade média (pronta)', carbsPerUnit: 35 }] },
-
-  // --- LEGUMINOSAS ---
-  { id: 'l1', name: 'Feijão (Preto/Carioca/Fradinho)', category: 'Leguminosas', variations: [{ label: 'Concha média', carbsPerUnit: 21 }, { label: 'Colher de sopa cheia', carbsPerUnit: 5 }] },
-  { id: 'l2', name: 'Ervilha em Conserva', category: 'Leguminosas', variations: [{ label: 'Colher de sopa', carbsPerUnit: 4 }] },
-
-  // --- PADARIA ---
-  { id: 'p1', name: 'Biscoito de Polvilho', category: 'Padaria', variations: [{ label: 'Unidade pequena', carbsPerUnit: 1 }, { label: 'Pacote (50g)', carbsPerUnit: 35 }] },
-  { id: 'p2', name: 'Biscoito de Sal (Cream Cracker)', category: 'Padaria', variations: [{ label: 'Unidade', carbsPerUnit: 5 }] },
-  { id: 'p3', name: 'Biscoito Recheado', category: 'Padaria', variations: [{ label: 'Unidade', carbsPerUnit: 10 }] },
-  { id: 'p4', name: 'Bolo Simples (Cenoura/Fubá/Laranja)', category: 'Padaria', variations: [{ label: 'Fatia média', carbsPerUnit: 25 }] },
-  { id: 'p5', name: 'Brownie', category: 'Padaria', variations: [{ label: 'Pedaço pequeno', carbsPerUnit: 25 }] },
-  { id: 'p6', name: 'Croissant Simples', category: 'Padaria', variations: [{ label: 'Unidade média', carbsPerUnit: 28 }] },
-  { id: 'p7', name: 'Pão de Forma', category: 'Padaria', variations: [{ label: 'Fatia', carbsPerUnit: 14 }] },
-  { id: 'p8', name: 'Pão de Queijo', category: 'Padaria', variations: [{ label: 'Unidade pequena', carbsPerUnit: 6 }, { label: 'Unidade média', carbsPerUnit: 15 }] },
-  { id: 'p9', name: 'Pão Francês', category: 'Padaria', variations: [{ label: 'Unidade (50g)', carbsPerUnit: 28 }, { label: 'Metade', carbsPerUnit: 14 }] },
-  { id: 'p10', name: 'Torrada Industrial', category: 'Padaria', variations: [{ label: 'Unidade', carbsPerUnit: 5 }] },
-
-  // --- LANCHES E PRATOS COMPLEXOS ---
-  { id: 'lp1', name: 'Açaí na Tigela (Puro)', category: 'Lanches e Pratos', variations: [{ label: 'Tigela média (300ml)', carbsPerUnit: 45 }] },
-  { id: 'lp2', name: 'Baião de Dois', category: 'Lanches e Pratos', variations: [{ label: 'Escumadeira', carbsPerUnit: 35 }] },
-  { id: 'lp3', name: 'Coxinha de Frango', category: 'Lanches e Pratos', variations: [{ label: 'Unidade festa', carbsPerUnit: 8 }, { label: 'Unidade lanchonete', carbsPerUnit: 40 }] },
-  { id: 'lp4', name: 'Empada de Frango', category: 'Lanches e Pratos', variations: [{ label: 'Unidade média', carbsPerUnit: 20 }] },
-  { id: 'lp5', name: 'Escondidinho de Carne Seca', category: 'Lanches e Pratos', variations: [{ label: 'Colher de servir', carbsPerUnit: 15 }] },
-  { id: 'lp6', name: 'Esfiha de Carne', category: 'Lanches e Pratos', variations: [{ label: 'Unidade média', carbsPerUnit: 25 }] },
-  { id: 'lp7', name: 'Estrogonofe (Carne/Frango)', category: 'Lanches e Pratos', variations: [{ label: 'Colher de servir', carbsPerUnit: 5 }] },
-  { id: 'lp8', name: 'Galinhada', category: 'Lanches e Pratos', variations: [{ label: 'Escumadeira', carbsPerUnit: 30 }] },
-  { id: 'lp9', name: 'Hot Dog Completo', category: 'Lanches e Pratos', variations: [{ label: 'Unidade', carbsPerUnit: 45 }] },
-  { id: 'lp10', name: 'Lasanha de Carne Moída', category: 'Lanches e Pratos', variations: [{ label: 'Quadrado médio', carbsPerUnit: 35 }] },
-  { id: 'lp11', name: 'Nuggets de Frango', category: 'Lanches e Pratos', variations: [{ label: 'Unidade', carbsPerUnit: 4 }] },
-  { id: 'lp12', name: 'Pastel de Feira', category: 'Lanches e Pratos', variations: [{ label: 'Unidade média', carbsPerUnit: 35 }] },
-  { id: 'lp13', name: 'Pizza (Vários Sabores)', category: 'Lanches e Pratos', variations: [{ label: 'Fatia média', carbsPerUnit: 30 }] },
-  { id: 'lp14', name: 'Quibe Frito', category: 'Lanches e Pratos', variations: [{ label: 'Unidade média', carbsPerUnit: 20 }] },
-  { id: 'lp15', name: 'Sanduíche Natural', category: 'Lanches e Pratos', variations: [{ label: 'Unidade', carbsPerUnit: 30 }] },
-  { id: 'lp16', name: 'Sushi (Nigiri/Hossomaki)', category: 'Lanches e Pratos', variations: [{ label: 'Unidade', carbsPerUnit: 8 }] },
-  { id: 'lp17', name: 'X-Burguer / X-Salada', category: 'Lanches e Pratos', variations: [{ label: 'Unidade', carbsPerUnit: 40 }] },
-  { id: 'lp18', name: 'Yakisoba de Carne', category: 'Lanches e Pratos', variations: [{ label: 'Pegador médio', carbsPerUnit: 35 }] },
-
-  // --- BEBIDAS ---
-  { id: 'b1', name: 'Achocolatado em Pó', category: 'Bebidas', variations: [{ label: 'Colher de sopa', carbsPerUnit: 12 }] },
-  { id: 'b2', name: 'Água de Coco', category: 'Bebidas', variations: [{ label: 'Copo (200ml)', carbsPerUnit: 10 }] },
-  { id: 'b3', name: 'Café (Puro / Expresso)', category: 'Bebidas', variations: [{ label: 'Xícara', carbsPerUnit: 0 }] },
-  { id: 'b4', name: 'Caldo de Cana', category: 'Bebidas', variations: [{ label: 'Copo (200ml)', carbsPerUnit: 40 }] },
-  { id: 'b5', name: 'Cappuccino', category: 'Bebidas', variations: [{ label: 'Xícara média', carbsPerUnit: 15 }] },
-  { id: 'b6', name: 'Cerveja (Pilsen)', category: 'Bebidas', variations: [{ label: 'Lata (350ml)', carbsPerUnit: 12 }] },
-  { id: 'b7', name: 'Chá Mate Gelado (Adoçado)', category: 'Bebidas', variations: [{ label: 'Copo (200ml)', carbsPerUnit: 16 }] },
-  { id: 'b8', name: 'Energético', category: 'Bebidas', variations: [{ label: 'Lata (250ml)', carbsPerUnit: 30 }] },
-  { id: 'b9', name: 'Iogurte Natural', category: 'Bebidas', variations: [{ label: 'Pote (170g)', carbsPerUnit: 9 }] },
-  { id: 'b10', name: 'Leite Integral / Desnatado', category: 'Bebidas', variations: [{ label: 'Copo (200ml)', carbsPerUnit: 10 }] },
-  { id: 'b11', name: 'Refrigerante (Cola/Guaraná)', category: 'Bebidas', variations: [{ label: 'Copo (200ml)', carbsPerUnit: 21 }, { label: 'Lata (350ml)', carbsPerUnit: 37 }] },
-  { id: 'b12', name: 'Refrigerante Zero', category: 'Bebidas', variations: [{ label: 'Lata', carbsPerUnit: 0 }] },
-  { id: 'b13', name: 'Suco de Laranja Natural', category: 'Bebidas', variations: [{ label: 'Copo (200ml)', carbsPerUnit: 20 }] },
-  { id: 'b14', name: 'Suco de Uva Integral', category: 'Bebidas', variations: [{ label: 'Copo (200ml)', carbsPerUnit: 30 }] },
-
-  // --- TEMPEROS E CONDIMENTOS ---
-  { id: 't1', name: 'Azeite de Oliva', category: 'Temperos e Condimentos', variations: [{ label: 'Colher de sopa', carbsPerUnit: 0 }] },
-  { id: 't2', name: 'Creme de Leite', category: 'Temperos e Condimentos', variations: [{ label: 'Colher de sopa', carbsPerUnit: 0.5 }] },
-  { id: 't3', name: 'Geléia de Frutas', category: 'Temperos e Condimentos', variations: [{ label: 'Colher de sopa', carbsPerUnit: 15 }] },
-  { id: 't4', name: 'Maionese', category: 'Temperos e Condimentos', variations: [{ label: 'Colher de sopa', carbsPerUnit: 1 }] },
-  { id: 't5', name: 'Mel de Abelha', category: 'Temperos e Condimentos', variations: [{ label: 'Colher de sopa', carbsPerUnit: 18 }] },
-  { id: 't6', name: 'Paçoca de Amendoim', category: 'Temperos e Condimentos', variations: [{ label: 'Unidade (20g)', carbsPerUnit: 12 }] },
-  { id: 't7', name: 'Requeijão Cremoso', category: 'Temperos e Condimentos', variations: [{ label: 'Colher de sopa', carbsPerUnit: 1 }] },
+  'Lanches',
+  'Bebidas'
 ];

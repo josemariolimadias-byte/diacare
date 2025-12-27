@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { FOOD_DATABASE, CATEGORIES } from '../constants';
 import { FoodItem, FoodItemVariation, PlateItem } from '../types';
 
@@ -13,6 +13,20 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
   const [plate, setPlate] = useState<PlateItem[]>([]);
   const [activeFood, setActiveFood] = useState<FoodItem | null>(null);
   
+  // Estado para controlar as quantidades de cada variação do alimento ativo
+  const [variationQuantities, setVariationQuantities] = useState<{[key: number]: number}>({});
+
+  // Resetar quantidades quando o alimento ativo mudar
+  useEffect(() => {
+    if (activeFood) {
+      const initialQuants: {[key: number]: number} = {};
+      activeFood.variations.forEach((_, idx) => {
+        initialQuants[idx] = 1;
+      });
+      setVariationQuantities(initialQuants);
+    }
+  }, [activeFood]);
+
   // Estado para inserção manual (Outros)
   const [isOtherMode, setIsOtherMode] = useState(false);
   const [customFoodName, setCustomFoodName] = useState('');
@@ -30,16 +44,26 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
   }, [selectedCategory, searchTerm]);
 
   const addToPlate = (food: FoodItem, variation: FoodItemVariation, quantity: number) => {
+    if (quantity <= 0) return;
+    
     const newItem: PlateItem = {
       foodId: food.id,
       foodName: food.name,
       variationLabel: variation.label,
       quantity,
-      totalCarbs: variation.carbsPerUnit * quantity
+      totalCarbs: Math.round((variation.carbsPerUnit * quantity) * 10) / 10
     };
     setPlate([...plate, newItem]);
     setActiveFood(null);
     setSearchTerm('');
+  };
+
+  const handleQuantityChange = (index: number, val: string) => {
+    const num = parseFloat(val);
+    setVariationQuantities(prev => ({
+      ...prev,
+      [index]: isNaN(num) ? 0 : num
+    }));
   };
 
   const handleAddCustom = () => {
@@ -61,7 +85,7 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
     setPlate(plate.filter((_, i) => i !== index));
   };
 
-  const totalCarbs = plate.reduce((acc, item) => acc + item.totalCarbs, 0);
+  const totalCarbs = Math.round(plate.reduce((acc, item) => acc + item.totalCarbs, 0) * 10) / 10;
 
   const handleOpenOther = () => {
     setIsOtherMode(true);
@@ -177,7 +201,7 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
         {/* Variações do Alimento Selecionado */}
         {activeFood && (
           <div className="bg-blue-600 p-6 rounded-2xl text-white shadow-2xl animate-in slide-in-from-bottom-3 duration-300 border border-blue-500">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-6">
               <div>
                 <h3 className="text-sm font-black uppercase tracking-wider">{activeFood.name}</h3>
                 <p className="text-[10px] text-blue-200 font-bold uppercase">{activeFood.category}</p>
@@ -186,19 +210,34 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
                 <span className="text-sm font-bold">✕</span>
               </button>
             </div>
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-1 gap-4">
               {activeFood.variations.map((v, i) => (
-                <div key={i} className="bg-white/10 p-4 rounded-xl flex items-center justify-between border border-white/10 hover:bg-white/20 transition-colors group">
-                  <div>
+                <div key={i} className="bg-white/10 p-4 rounded-2xl flex items-center justify-between border border-white/10 hover:bg-white/20 transition-colors group">
+                  <div className="flex-1">
                     <div className="font-black text-white text-sm">{v.label}</div>
-                    <div className="text-blue-100 font-bold text-xs">{v.carbsPerUnit}g carboidratos</div>
+                    <div className="text-blue-100 font-bold text-xs">{v.carbsPerUnit}g por unidade</div>
                   </div>
-                  <button
-                    onClick={() => addToPlate(activeFood, v, 1)}
-                    className="bg-white text-blue-700 px-4 py-2 rounded-lg text-xs font-black hover:bg-blue-50 transition-all shadow-sm active:scale-95"
-                  >
-                    + ADICIONAR
-                  </button>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="flex flex-col items-center">
+                      <label className="text-[9px] font-black text-blue-200 uppercase mb-1 tracking-widest">Qtd</label>
+                      <input 
+                        type="number"
+                        min="0.1"
+                        step="0.1"
+                        value={variationQuantities[i] || 1}
+                        onChange={(e) => handleQuantityChange(i, e.target.value)}
+                        className="w-16 p-2 bg-white/20 border border-white/30 rounded-xl text-center text-xs font-black text-white outline-none focus:ring-2 focus:ring-white transition-all"
+                      />
+                    </div>
+                    
+                    <button
+                      onClick={() => addToPlate(activeFood, v, variationQuantities[i] || 1)}
+                      className="bg-white text-blue-700 px-5 py-3 rounded-xl text-[10px] font-black hover:bg-blue-50 transition-all shadow-md active:scale-95 uppercase tracking-widest"
+                    >
+                      ADICIONAR
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

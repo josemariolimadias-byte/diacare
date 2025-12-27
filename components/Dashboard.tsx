@@ -72,6 +72,23 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
     setEndDate('');
   };
 
+  // Função para formatar a data de forma amigável e por extenso
+  const formatFriendlyDate = (dateStr: string) => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    // Usamos o construtor manual para evitar problemas de fuso horário do navegador
+    const date = new Date(year, month - 1, day);
+    const formatted = date.toLocaleDateString('pt-BR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+    // Capitalizar a primeira letra
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  };
+
+  let lastDateDisplayed = "";
+
   return (
     <div className="space-y-8">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -145,7 +162,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
         />
       </div>
 
-      {/* Tabela de Registros do Filtro */}
+      {/* Tabela de Registros com Agrupamento por Data */}
       <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
         <div className="px-8 py-5 border-b border-slate-50 flex items-center justify-between">
           <h2 className="text-base font-black text-slate-800 tracking-tight">Registros do Período</h2>
@@ -158,7 +175,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
           <table className="w-full text-left table-auto min-w-[700px]">
             <thead className="bg-slate-50/50 text-slate-400 text-[10px] uppercase font-black tracking-widest">
               <tr>
-                <th className="px-8 py-4">Data e Hora</th>
+                <th className="px-8 py-4">Hora</th>
                 <th className="px-8 py-4">Glicemia</th>
                 <th className="px-8 py-4 text-center">Carboidratos</th>
                 <th className="px-8 py-4">Insulina (R/C/B)</th>
@@ -175,48 +192,67 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
                   </td>
                 </tr>
               ) : (
-                stats.filteredLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-50/30 transition-colors group">
-                    <td className="px-8 py-5">
-                      <div className="font-bold text-slate-700 text-sm">{log.date.split('-').reverse().join('/')}</div>
-                      <div className="text-[11px] text-slate-400 font-bold uppercase tracking-tighter">{log.time}</div>
-                    </td>
-                    <td className="px-8 py-5">
-                      <span className={`px-4 py-1.5 rounded-full text-xs font-black shadow-sm inline-block ${getGlucoseBgClass(log.glucose)}`}>
-                        {log.glucose}
-                      </span>
-                    </td>
-                    <td className="px-8 py-5 text-center text-slate-600 font-black text-sm">
-                        {log.carbAmount}g
-                    </td>
-                    <td className="px-8 py-5">
-                      <div className="flex gap-2">
-                        <span className="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-lg text-[10px] font-black" title="Refeição">{log.mealInsulin}U</span>
-                        <span className="bg-purple-100 text-purple-700 px-2.5 py-1 rounded-lg text-[10px] font-black" title="Correção">{log.correctionInsulin}U</span>
-                        <span className="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-lg text-[10px] font-black" title="Basal">{log.basalInsulin}U</span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-5 text-slate-500 font-bold text-sm">{log.pills}u</td>
-                    <td className="px-8 py-5 text-right">
-                      <div className="flex items-center justify-end gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => onEdit(log)}
-                          className="text-slate-400 hover:text-blue-600 transition-all text-lg"
-                          title="Editar"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          onClick={() => onDelete(log.id)}
-                          className="text-slate-300 hover:text-red-500 transition-all text-lg"
-                          title="Excluir"
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                stats.filteredLogs.map((log) => {
+                  const showDateHeader = log.date !== lastDateDisplayed;
+                  if (showDateHeader) lastDateDisplayed = log.date;
+
+                  return (
+                    <React.Fragment key={log.id}>
+                      {showDateHeader && (
+                        <tr className="bg-emerald-600 border-t-4 border-white first:border-t-0">
+                          <td colSpan={6} className="px-8 py-3 text-white">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-black uppercase tracking-[0.15em] drop-shadow-sm">
+                                {formatFriendlyDate(log.date)}
+                              </span>
+                              <div className="h-px bg-white/20 flex-1 ml-4"></div>
+                              <span className="text-[10px] font-black opacity-60">▼</span>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                      <tr className="hover:bg-slate-50/30 transition-colors group">
+                        <td className="px-8 py-5">
+                          <div className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">{log.time}</div>
+                        </td>
+                        <td className="px-8 py-5">
+                          <span className={`px-4 py-1.5 rounded-full text-xs font-black shadow-sm inline-block ${getGlucoseBgClass(log.glucose)}`}>
+                            {log.glucose}
+                          </span>
+                        </td>
+                        <td className="px-8 py-5 text-center text-slate-600 font-black text-sm">
+                            {log.carbAmount}g
+                        </td>
+                        <td className="px-8 py-5">
+                          <div className="flex gap-2">
+                            <span className="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-lg text-[10px] font-black" title="Refeição">{log.mealInsulin}U</span>
+                            <span className="bg-purple-100 text-purple-700 px-2.5 py-1 rounded-lg text-[10px] font-black" title="Correção">{log.correctionInsulin}U</span>
+                            <span className="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-lg text-[10px] font-black" title="Basal">{log.basalInsulin}U</span>
+                          </div>
+                        </td>
+                        <td className="px-8 py-5 text-slate-500 font-bold text-sm">{log.pills}u</td>
+                        <td className="px-8 py-5 text-right">
+                          <div className="flex items-center justify-end gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => onEdit(log)}
+                              className="text-slate-400 hover:text-blue-600 transition-all text-lg"
+                              title="Editar"
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              onClick={() => onDelete(log.id)}
+                              className="text-slate-300 hover:text-red-500 transition-all text-lg"
+                              title="Excluir"
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </React.Fragment>
+                  );
+                })
               )}
             </tbody>
           </table>

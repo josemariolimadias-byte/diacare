@@ -74,6 +74,28 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ user, setUser }) => {
               {DIABETES_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
           </div>
+          {/* Novos campos: Altura e Peso */}
+          <div>
+            <label className="block text-xs font-bold text-slate-400 mb-1">Altura (cm)</label>
+            <input
+              type="number"
+              placeholder="Ex: 175"
+              value={user.height || ''}
+              onChange={(e) => updateSetting('height', parseFloat(e.target.value))}
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-400 mb-1">Peso (kg)</label>
+            <input
+              type="number"
+              step="0.1"
+              placeholder="Ex: 70.5"
+              value={user.weight || ''}
+              onChange={(e) => updateSetting('weight', parseFloat(e.target.value))}
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
         </div>
       </section>
 

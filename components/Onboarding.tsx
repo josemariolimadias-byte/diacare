@@ -25,7 +25,9 @@ const Onboarding: React.FC<OnboardingProps> = ({ authUser, onComplete }) => {
     hyperThreshold: 250,
     hypoThreshold: 54,
     targetRangeMin: 70,
-    targetRangeMax: 150
+    targetRangeMax: 150,
+    height: 0,
+    weight: 0
   });
 
   const next = () => setStep(step + 1);
@@ -59,6 +61,30 @@ const Onboarding: React.FC<OnboardingProps> = ({ authUser, onComplete }) => {
                 />
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Altura (cm)</label>
+                  <input
+                    type="number"
+                    placeholder="Ex: 175"
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    value={profile.height || ''}
+                    onChange={(e) => setProfile({ ...profile, height: parseFloat(e.target.value) })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Peso (kg)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    placeholder="Ex: 70"
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    value={profile.weight || ''}
+                    onChange={(e) => setProfile({ ...profile, weight: parseFloat(e.target.value) })}
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Data de Nascimento</label>
                 <input
@@ -83,7 +109,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ authUser, onComplete }) => {
 
             <button
               onClick={next}
-              disabled={!profile.fullName || !profile.birthDate}
+              disabled={!profile.fullName || !profile.birthDate || !profile.height || !profile.weight}
               className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold mt-6 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl shadow-blue-200 transform active:scale-95"
             >
               Próximo Passo

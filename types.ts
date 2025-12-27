@@ -45,6 +45,8 @@ export interface UserProfile {
   hypoThreshold: number;
   targetRangeMin: number;
   targetRangeMax: number;
+  height: number;
+  weight: number;
 }
 
 export interface LogEntry {

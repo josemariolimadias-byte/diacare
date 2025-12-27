@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { UserProfile, LogEntry } from '../types';
 
 interface DashboardProps {
@@ -11,8 +11,45 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onNewRecord }) => {
-  const latestGlucose = logs[0]?.glucose;
-  const avgGlucose = logs.length > 0 ? Math.round(logs.reduce((acc, l) => acc + l.glucose, 0) / logs.length) : 0;
+  // Estados para o filtro de data
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+
+  // Lógica de filtragem e cálculo de estatísticas
+  const stats = useMemo(() => {
+    let filtered = logs;
+    
+    if (startDate) {
+      filtered = filtered.filter(log => log.date >= startDate);
+    }
+    if (endDate) {
+      filtered = filtered.filter(log => log.date <= endDate);
+    }
+
+    const count = filtered.length;
+    if (count === 0) return { 
+      avgGlucose: 0, 
+      totalCarbs: 0, 
+      totalRapid: 0, 
+      totalBasal: 0, 
+      count: 0,
+      filteredLogs: [] 
+    };
+
+    const sumGlucose = filtered.reduce((acc, l) => acc + l.glucose, 0);
+    const totalCarbs = filtered.reduce((acc, l) => acc + l.carbAmount, 0);
+    const totalRapid = filtered.reduce((acc, l) => acc + (l.mealInsulin + l.correctionInsulin), 0);
+    const totalBasal = filtered.reduce((acc, l) => acc + l.basalInsulin, 0);
+
+    return {
+      avgGlucose: Math.round(sumGlucose / count),
+      totalCarbs,
+      totalRapid: Math.round(totalRapid * 10) / 10,
+      totalBasal: Math.round(totalBasal * 10) / 10,
+      count,
+      filteredLogs: filtered
+    };
+  }, [logs, startDate, endDate]);
 
   const getGlucoseBgClass = (val: number) => {
     if (val < user.hypoThreshold) return 'text-red-600 bg-red-50';
@@ -21,12 +58,17 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
     return 'text-blue-600 bg-blue-50';
   };
 
+  const clearFilters = () => {
+    setStartDate('');
+    setEndDate('');
+  };
+
   return (
     <div className="space-y-8">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-800 tracking-tight">Olá, {user.fullName.split(' ')[0]}</h1>
-          <p className="text-sm text-slate-500 font-medium">Resumo do seu controle diário e atividades.</p>
+          <p className="text-sm text-slate-500 font-medium">Relatórios e métricas de controle glicêmico.</p>
         </div>
         <button
           onClick={onNewRecord}
@@ -36,34 +78,70 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
         </button>
       </header>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Seção de Filtros */}
+      <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+        <div className="flex flex-col md:flex-row items-end gap-4">
+          <div className="flex-1 w-full">
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Filtrar por Início</label>
+            <input 
+              type="date" 
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm font-bold text-slate-700"
+            />
+          </div>
+          <div className="flex-1 w-full">
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Filtrar por Término</label>
+            <input 
+              type="date" 
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm font-bold text-slate-700"
+            />
+          </div>
+          <button 
+            onClick={clearFilters}
+            className="p-3.5 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl transition-colors font-black text-[10px] uppercase tracking-widest"
+          >
+            Limpar
+          </button>
+        </div>
+      </div>
+
+      {/* Métricas do Período */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          label="Última Glicemia"
-          value={latestGlucose ? `${latestGlucose} ${user.glucoseUnit}` : '--'}
-          subtext={latestGlucose ? `Registrado às ${logs[0].time}` : 'Sem registros recentes'}
-          colorClass={latestGlucose ? getGlucoseBgClass(latestGlucose) : 'bg-white text-slate-400'}
+          label="Média Glicêmica"
+          value={stats.avgGlucose ? `${stats.avgGlucose} ${user.glucoseUnit}` : '--'}
+          subtext={`Baseado em ${stats.count} registros`}
+          colorClass={stats.avgGlucose ? getGlucoseBgClass(stats.avgGlucose) : 'bg-white text-slate-400'}
         />
         <StatCard
-          label="Média do Período"
-          value={`${avgGlucose} ${user.glucoseUnit}`}
-          subtext={`${logs.length} medições totais salvas`}
+          label="Carboidratos Totais"
+          value={`${stats.totalCarbs}g`}
+          subtext="No período selecionado"
           colorClass="bg-white"
         />
         <StatCard
-          label="Faixa Alvo"
-          value={`${user.targetRangeMin} - ${user.targetRangeMax}`}
-          subtext={`Unidade padrão: ${user.glucoseUnit}`}
-          colorClass="bg-white border-dashed border-2 border-slate-100"
+          label="Insulina Rápida"
+          value={`${stats.totalRapid} U`}
+          subtext="Refeição + Correção"
+          colorClass="bg-blue-50 text-blue-700"
+        />
+        <StatCard
+          label="Insulina Basal"
+          value={`${stats.totalBasal} U`}
+          subtext="Ação Prolongada"
+          colorClass="bg-teal-50 text-teal-700"
         />
       </div>
 
-      {/* Log Table Container */}
+      {/* Tabela de Registros do Filtro */}
       <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
         <div className="px-8 py-5 border-b border-slate-50 flex items-center justify-between">
-          <h2 className="text-base font-black text-slate-800 tracking-tight">Histórico de Atividades</h2>
+          <h2 className="text-base font-black text-slate-800 tracking-tight">Registros do Período</h2>
           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full">
-            {logs.length} Entradas
+            {stats.filteredLogs.length} Entradas
           </span>
         </div>
         
@@ -80,15 +158,15 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {logs.length === 0 ? (
+              {stats.filteredLogs.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-8 py-16 text-center text-slate-400 font-medium">
                     <div className="text-4xl mb-3 opacity-20">📋</div>
-                    <p className="text-sm">Nenhum registro encontrado.</p>
+                    <p className="text-sm">Nenhum registro para este período.</p>
                   </td>
                 </tr>
               ) : (
-                logs.map((log) => (
+                stats.filteredLogs.map((log) => (
                   <tr key={log.id} className="hover:bg-slate-50/30 transition-colors group">
                     <td className="px-8 py-5">
                       <div className="font-bold text-slate-700 text-sm">{log.date.split('-').reverse().join('/')}</div>
@@ -140,11 +218,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
 };
 
 const StatCard: React.FC<{ label: string; value: string; subtext: string; colorClass?: string }> = ({ label, value, subtext, colorClass }) => (
-  <div className={`p-7 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col justify-between h-40 transition-all hover:shadow-md ${colorClass || 'bg-white'}`}>
-    <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50">{label}</span>
+  <div className={`p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col justify-between h-40 transition-all hover:shadow-md ${colorClass || 'bg-white'}`}>
+    <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-50">{label}</span>
     <div>
-      <div className="text-3xl font-black tracking-tighter leading-none">{value}</div>
-      <div className="text-xs font-bold opacity-40 mt-2">{subtext}</div>
+      <div className="text-2xl font-black tracking-tighter leading-none">{value}</div>
+      <div className="text-[10px] font-bold opacity-40 mt-2">{subtext}</div>
     </div>
   </div>
 );

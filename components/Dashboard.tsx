@@ -14,6 +14,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
   // Estados para o filtro de data
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+  
+  // Estado para controlar quais datas estão recolhidas (armazenamos as strings das datas)
+  const [collapsedDates, setCollapsedDates] = useState<Set<string>>(new Set());
 
   // Lógica de filtragem, ordenação e cálculo de estatísticas
   const stats = useMemo(() => {
@@ -60,6 +63,18 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
     };
   }, [logs, startDate, endDate]);
 
+  const toggleDate = (date: string) => {
+    setCollapsedDates(prev => {
+      const next = new Set(prev);
+      if (next.has(date)) {
+        next.delete(date);
+      } else {
+        next.add(date);
+      }
+      return next;
+    });
+  };
+
   const getGlucoseBgClass = (val: number) => {
     if (val < user.hypoThreshold) return 'text-red-600 bg-red-50';
     if (val > user.hyperThreshold) return 'text-orange-600 bg-orange-50';
@@ -70,6 +85,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
   const clearFilters = () => {
     setStartDate('');
     setEndDate('');
+    setCollapsedDates(new Set());
   };
 
   // Função para formatar a data de forma amigável e por extenso
@@ -195,61 +211,70 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
                 stats.filteredLogs.map((log) => {
                   const showDateHeader = log.date !== lastDateDisplayed;
                   if (showDateHeader) lastDateDisplayed = log.date;
+                  
+                  const isCollapsed = collapsedDates.has(log.date);
 
                   return (
                     <React.Fragment key={log.id}>
                       {showDateHeader && (
-                        <tr className="bg-emerald-600 border-t-4 border-white first:border-t-0">
+                        <tr 
+                          onClick={() => toggleDate(log.date)}
+                          className="bg-emerald-600 border-t-4 border-white first:border-t-0 cursor-pointer hover:bg-emerald-700 transition-colors select-none"
+                        >
                           <td colSpan={6} className="px-8 py-3 text-white">
                             <div className="flex items-center gap-2">
                               <span className="text-xs font-black uppercase tracking-[0.15em] drop-shadow-sm">
                                 {formatFriendlyDate(log.date)}
                               </span>
                               <div className="h-px bg-white/20 flex-1 ml-4"></div>
-                              <span className="text-[10px] font-black opacity-60">▼</span>
+                              <span className={`text-[10px] font-black opacity-60 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : 'rotate-0'}`}>
+                                ▼
+                              </span>
                             </div>
                           </td>
                         </tr>
                       )}
-                      <tr className="hover:bg-slate-50/30 transition-colors group">
-                        <td className="px-8 py-5">
-                          <div className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">{log.time}</div>
-                        </td>
-                        <td className="px-8 py-5">
-                          <span className={`px-4 py-1.5 rounded-full text-xs font-black shadow-sm inline-block ${getGlucoseBgClass(log.glucose)}`}>
-                            {log.glucose}
-                          </span>
-                        </td>
-                        <td className="px-8 py-5 text-center text-slate-600 font-black text-sm">
-                            {log.carbAmount}g
-                        </td>
-                        <td className="px-8 py-5">
-                          <div className="flex gap-2">
-                            <span className="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-lg text-[10px] font-black" title="Refeição">{log.mealInsulin}U</span>
-                            <span className="bg-purple-100 text-purple-700 px-2.5 py-1 rounded-lg text-[10px] font-black" title="Correção">{log.correctionInsulin}U</span>
-                            <span className="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-lg text-[10px] font-black" title="Basal">{log.basalInsulin}U</span>
-                          </div>
-                        </td>
-                        <td className="px-8 py-5 text-slate-500 font-bold text-sm">{log.pills}u</td>
-                        <td className="px-8 py-5 text-right">
-                          <div className="flex items-center justify-end gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
-                              onClick={() => onEdit(log)}
-                              className="text-slate-400 hover:text-blue-600 transition-all text-lg"
-                              title="Editar"
-                            >
-                              ✏️
-                            </button>
-                            <button
-                              onClick={() => onDelete(log.id)}
-                              className="text-slate-300 hover:text-red-500 transition-all text-lg"
-                              title="Excluir"
-                            >
-                              🗑️
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
+                      {!isCollapsed && (
+                        <tr className="hover:bg-slate-50/30 transition-colors group">
+                          <td className="px-8 py-5">
+                            <div className="text-[11px] text-slate-400 font-bold uppercase tracking-widest">{log.time}</div>
+                          </td>
+                          <td className="px-8 py-5">
+                            <span className={`px-4 py-1.5 rounded-full text-xs font-black shadow-sm inline-block ${getGlucoseBgClass(log.glucose)}`}>
+                              {log.glucose}
+                            </span>
+                          </td>
+                          <td className="px-8 py-5 text-center text-slate-600 font-black text-sm">
+                              {log.carbAmount}g
+                          </td>
+                          <td className="px-8 py-5">
+                            <div className="flex gap-2">
+                              <span className="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-lg text-[10px] font-black" title="Refeição">{log.mealInsulin}U</span>
+                              <span className="bg-purple-100 text-purple-700 px-2.5 py-1 rounded-lg text-[10px] font-black" title="Correção">{log.correctionInsulin}U</span>
+                              <span className="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-lg text-[10px] font-black" title="Basal">{log.basalInsulin}U</span>
+                            </div>
+                          </td>
+                          <td className="px-8 py-5 text-slate-500 font-bold text-sm">{log.pills}u</td>
+                          <td className="px-8 py-5 text-right">
+                            <div className="flex items-center justify-end gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => onEdit(log)}
+                                className="text-slate-400 hover:text-blue-600 transition-all text-lg"
+                                title="Editar"
+                              >
+                                ✏️
+                              </button>
+                              <button
+                                onClick={() => onDelete(log.id)}
+                                className="text-slate-300 hover:text-red-500 transition-all text-lg"
+                                title="Excluir"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
                     </React.Fragment>
                   );
                 })

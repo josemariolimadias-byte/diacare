@@ -15,16 +15,25 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
-  // Lógica de filtragem e cálculo de estatísticas
+  // Lógica de filtragem, ordenação e cálculo de estatísticas
   const stats = useMemo(() => {
-    let filtered = logs;
+    let filtered = [...logs]; // Criar cópia para não mutar o estado original
     
+    // 1. Filtragem por data
     if (startDate) {
       filtered = filtered.filter(log => log.date >= startDate);
     }
     if (endDate) {
       filtered = filtered.filter(log => log.date <= endDate);
     }
+
+    // 2. Ordenação por Data e Hora (Mais recente primeiro)
+    filtered.sort((a, b) => {
+      if (a.date !== b.date) {
+        return b.date.localeCompare(a.date); // Data decrescente
+      }
+      return b.time.localeCompare(a.time); // Hora decrescente
+    });
 
     const count = filtered.length;
     if (count === 0) return { 

@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { UserProfile, LogEntry } from '../types';
+import { UserProfile, LogEntry, GlucoseUnit } from '../types';
 
 interface DashboardProps {
   user: UserProfile;
@@ -15,14 +15,13 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   
-  // Estado para controlar quais datas estão recolhidas (armazenamos as strings das datas)
+  // Estado para controlar quais datas estão recolhidas
   const [collapsedDates, setCollapsedDates] = useState<Set<string>>(new Set());
 
   // Lógica de filtragem, ordenação e cálculo de estatísticas
   const stats = useMemo(() => {
-    let filtered = [...logs]; // Criar cópia para não mutar o estado original
+    let filtered = [...logs];
     
-    // 1. Filtragem por data
     if (startDate) {
       filtered = filtered.filter(log => log.date >= startDate);
     }
@@ -30,17 +29,17 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
       filtered = filtered.filter(log => log.date <= endDate);
     }
 
-    // 2. Ordenação por Data e Hora (Mais recente primeiro)
     filtered.sort((a, b) => {
       if (a.date !== b.date) {
-        return b.date.localeCompare(a.date); // Data decrescente
+        return b.date.localeCompare(a.date);
       }
-      return b.time.localeCompare(a.time); // Hora decrescente
+      return b.time.localeCompare(a.time);
     });
 
     const count = filtered.length;
     if (count === 0) return { 
       avgGlucose: 0, 
+      estimatedA1c: 0,
       totalCarbs: 0, 
       totalRapid: 0, 
       totalBasal: 0, 
@@ -49,19 +48,28 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
     };
 
     const sumGlucose = filtered.reduce((acc, l) => acc + l.glucose, 0);
+    const avgGlucose = sumGlucose / count;
+
+    // Cálculo da HbA1c Estimada (eA1c)
+    // Formula para mg/dL: (Média + 46.7) / 28.7
+    // Se estiver em mmol/L, convertemos para mg/dL primeiro (* 18.0182)
+    const avgForCalc = user.glucoseUnit === GlucoseUnit.MMOL_L ? avgGlucose * 18.0182 : avgGlucose;
+    const estimatedA1c = (avgForCalc + 46.7) / 28.7;
+
     const totalCarbs = filtered.reduce((acc, l) => acc + l.carbAmount, 0);
     const totalRapid = filtered.reduce((acc, l) => acc + (l.mealInsulin + l.correctionInsulin), 0);
     const totalBasal = filtered.reduce((acc, l) => acc + l.basalInsulin, 0);
 
     return {
-      avgGlucose: Math.round(sumGlucose / count),
+      avgGlucose: Math.round(avgGlucose),
+      estimatedA1c: Math.round(estimatedA1c * 10) / 10,
       totalCarbs,
       totalRapid: Math.round(totalRapid * 10) / 10,
       totalBasal: Math.round(totalBasal * 10) / 10,
       count,
       filteredLogs: filtered
     };
-  }, [logs, startDate, endDate]);
+  }, [logs, startDate, endDate, user.glucoseUnit]);
 
   const toggleDate = (date: string) => {
     setCollapsedDates(prev => {
@@ -88,10 +96,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
     setCollapsedDates(new Set());
   };
 
-  // Função para formatar a data de forma amigável e por extenso
   const formatFriendlyDate = (dateStr: string) => {
     const [year, month, day] = dateStr.split('-').map(Number);
-    // Usamos o construtor manual para evitar problemas de fuso horário do navegador
     const date = new Date(year, month - 1, day);
     const formatted = date.toLocaleDateString('pt-BR', {
       weekday: 'long',
@@ -99,7 +105,6 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
       month: 'long',
       year: 'numeric'
     });
-    // Capitalizar a primeira letra
     return formatted.charAt(0).toUpperCase() + formatted.slice(1);
   };
 
@@ -151,13 +156,28 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
       </div>
 
       {/* Métricas do Período */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <StatCard
           label="Média Glicêmica"
           value={stats.avgGlucose ? `${stats.avgGlucose} ${user.glucoseUnit}` : '--'}
           subtext={`Baseado em ${stats.count} registros`}
           colorClass={stats.avgGlucose ? getGlucoseBgClass(stats.avgGlucose) : 'bg-white text-slate-400'}
         />
+        <StatCard
+          label="HbA1c Estimada"
+          value={stats.estimatedA1c ? `${stats.estimatedA1c}%` : '--'}
+          subtext="Média de longo prazo"
+          colorClass="bg-purple-50 text-purple-700"
+        />
+        <StatCard
+          label="Insulina Total"
+          value={`${Math.round((stats.totalRapid + stats.totalBasal) * 10) / 10} U`}
+          subtext="Rápida + Basal no período"
+          colorClass="bg-blue-50 text-blue-700"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <StatCard
           label="Carboidratos Totais"
           value={`${stats.totalCarbs}g`}
@@ -168,7 +188,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
           label="Insulina Rápida"
           value={`${stats.totalRapid} U`}
           subtext="Refeição + Correção"
-          colorClass="bg-blue-50 text-blue-700"
+          colorClass="bg-white text-slate-600"
         />
         <StatCard
           label="Insulina Basal"
@@ -178,7 +198,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, logs, onDelete, onEdit, onN
         />
       </div>
 
-      {/* Tabela de Registros com Agrupamento por Data */}
+      {/* Tabela de Registros */}
       <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
         <div className="px-8 py-5 border-b border-slate-50 flex items-center justify-between">
           <h2 className="text-base font-black text-slate-800 tracking-tight">Registros do Período</h2>

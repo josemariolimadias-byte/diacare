@@ -66,6 +66,7 @@ export interface LogEntry {
 export interface FoodItemVariation {
   label: string;
   carbsPerUnit: number;
+  caloriesPerUnit: number;
 }
 
 export interface FoodItem {
@@ -81,4 +82,5 @@ export interface PlateItem {
   variationLabel: string;
   quantity: number;
   totalCarbs: number;
+  totalCalories: number;
 }

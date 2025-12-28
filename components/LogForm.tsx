@@ -1,33 +1,23 @@
 
 import React, { useState, useEffect } from 'react';
 import { UserProfile, LogEntry, CarbUnit } from '../types';
-import PlateBuilder from './PlateBuilder';
 
 interface LogFormProps {
   user: UserProfile;
-  initialCarbs: number;
   initialLog?: LogEntry | null;
   onAdd: (entry: LogEntry) => void;
   onCancel: () => void;
 }
 
-const LogForm: React.FC<LogFormProps> = ({ user, initialCarbs, initialLog, onAdd, onCancel }) => {
+const LogForm: React.FC<LogFormProps> = ({ user, initialLog, onAdd, onCancel }) => {
   const [date, setDate] = useState(initialLog?.date || new Date().toISOString().split('T')[0]);
   const [time, setTime] = useState(initialLog?.time || new Date().toTimeString().slice(0, 5));
   const [glucose, setGlucose] = useState<string>(initialLog?.glucose.toString() || '');
-  const [carbAmount, setCarbAmount] = useState<string>(initialLog?.carbAmount.toString() || initialCarbs.toString());
+  const [carbAmount, setCarbAmount] = useState<string>(initialLog?.carbAmount.toString() || '');
   const [mealInsulin, setMealInsulin] = useState<string>(initialLog?.mealInsulin.toString() || '0');
   const [correctionInsulin, setCorrectionInsulin] = useState<string>(initialLog?.correctionInsulin.toString() || '0');
   const [basalInsulin, setBasalInsulin] = useState<string>(initialLog?.basalInsulin.toString() || '0');
   const [pills, setPills] = useState<string>(initialLog?.pills.toString() || '0');
-  
-  const [isPlateBuilderOpen, setIsPlateBuilderOpen] = useState(false);
-
-  useEffect(() => {
-    if (initialCarbs > 0 && !initialLog) {
-      setCarbAmount(initialCarbs.toString());
-    }
-  }, [initialCarbs, initialLog]);
 
   useEffect(() => {
     const gValue = parseFloat(glucose);
@@ -36,6 +26,7 @@ const LogForm: React.FC<LogFormProps> = ({ user, initialCarbs, initialLog, onAdd
     let suggestedMeal = 0;
     let suggestedCorr = 0;
 
+    // Lógica simples de sugestão (pode ser personalizada no futuro)
     if (!isNaN(cValue) && cValue > 0) {
       suggestedMeal = Math.round((cValue / 15) * 10) / 10;
     }
@@ -54,7 +45,6 @@ const LogForm: React.FC<LogFormProps> = ({ user, initialCarbs, initialLog, onAdd
     e.preventDefault();
     if (!glucose || !carbAmount) return;
 
-    // Fix: Added userId property which is required by the LogEntry interface
     const entry: LogEntry = {
       id: initialLog?.id || crypto.randomUUID(),
       userId: user.userId,
@@ -68,11 +58,6 @@ const LogForm: React.FC<LogFormProps> = ({ user, initialCarbs, initialLog, onAdd
       pills: parseFloat(pills)
     };
     onAdd(entry);
-  };
-
-  const handlePlateComplete = (carbs: number) => {
-    setCarbAmount(carbs.toString());
-    setIsPlateBuilderOpen(false);
   };
 
   return (
@@ -117,17 +102,8 @@ const LogForm: React.FC<LogFormProps> = ({ user, initialCarbs, initialLog, onAdd
                 required
               />
             </div>
-            <div className="p-5 bg-emerald-50/50 rounded-3xl border border-emerald-100/50 flex flex-col justify-between">
-              <div className="flex justify-between items-center mb-2">
-                <label className="block text-[11px] font-black text-emerald-600 uppercase tracking-widest">Carboidratos ({user.carbUnit === CarbUnit.GRAMS ? 'g' : 'Eq'})</label>
-                <button
-                  type="button"
-                  onClick={() => setIsPlateBuilderOpen(true)}
-                  className="text-[10px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-full hover:bg-emerald-200 transition-colors shadow-sm"
-                >
-                  🍽️ Montar Prato
-                </button>
-              </div>
+            <div className="p-5 bg-emerald-50/50 rounded-3xl border border-emerald-100/50">
+              <label className="block text-[11px] font-black text-emerald-600 uppercase tracking-widest mb-2">Carboidratos ({user.carbUnit === CarbUnit.GRAMS ? 'g' : 'Eq'})</label>
               <input
                 type="number"
                 placeholder="0"
@@ -201,28 +177,6 @@ const LogForm: React.FC<LogFormProps> = ({ user, initialCarbs, initialLog, onAdd
           </div>
         </form>
       </div>
-
-      {/* Modal de Montagem de Prato */}
-      {isPlateBuilderOpen && (
-        <div className="fixed inset-0 z-[60] bg-slate-900/50 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-slate-50 w-full max-w-5xl max-h-[90vh] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col border border-white/20">
-            <div className="px-6 py-5 bg-white border-b border-slate-100 flex justify-between items-center">
-              <h2 className="text-base font-black text-slate-800 tracking-tight flex items-center gap-2">
-                <span>🍽️</span> Montador de Prato
-              </h2>
-              <button 
-                onClick={() => setIsPlateBuilderOpen(false)}
-                className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
-              >
-                <span className="text-lg">✕</span>
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6 md:p-8">
-              <PlateBuilder onConsume={handlePlateComplete} />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

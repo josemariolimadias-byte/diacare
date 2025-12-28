@@ -13,6 +13,7 @@ export const StorageService = {
   // --- AUTH SIMULATION ---
   async login(email: string, password: string): Promise<AuthUser> {
     await delay(800);
+    // Simulação: qualquer email/senha funciona por enquanto
     const user: AuthUser = { id: btoa(email), email };
     localStorage.setItem('diacare_auth', JSON.stringify(user));
     return user;

@@ -3,9 +3,10 @@ import React from 'react';
 
 interface LandingPageProps {
   onEnterSystem: () => void;
+  onContactClick: () => void;
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem, onContactClick }) => {
   const apiKey = process.env.API_KEY || '';
   const lastFourDigits = apiKey.slice(-4);
   const isApiConnected = apiKey.length > 0;
@@ -15,7 +16,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem }) => {
       {/* SEÇÃO 1: CABEÇALHO COM MENU */}
       <header className="fixed top-0 left-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-200">D</div>
             <span className="text-2xl font-black text-slate-800 tracking-tight">DiaCare</span>
           </div>
@@ -24,6 +25,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem }) => {
             <a href="#inicio" className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest">Início</a>
             <a href="#sobre" className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest">Sobre</a>
             <a href="#recursos" className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest">Recursos</a>
+            <button 
+              onClick={onContactClick}
+              className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest"
+            >
+              Contato
+            </button>
             <button 
               onClick={onEnterSystem}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-100"
@@ -175,9 +182,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem }) => {
             <div>
               <h4 className="text-xs font-black uppercase tracking-widest text-blue-400 mb-6">Suporte</h4>
               <ul className="space-y-4 text-sm font-bold text-slate-300">
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Manual do Usuário</a></li>
+                <li><a href="https://drive.google.com/file/d/1tpt88R8JPdgY1_bZ-gIr4xskleOXWvLY/view?usp=drive_link" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Manual SBD</a></li>
                 <li><a href="#" className="hover:text-blue-400 transition-colors">Contagem CHO</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Contato</a></li>
+                <li><button onClick={onContactClick} className="hover:text-blue-400 transition-colors text-left">Contato</button></li>
               </ul>
             </div>
 
@@ -191,11 +198,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem }) => {
           </div>
           
           <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-500">
-            <span>© 2024 DiaCare. Todos os direitos reservados.</span>
+            <span>© 2026 DiaCare. Todos os direitos reservados.</span>
             <div className="flex gap-6">
-              <a href="#" className="hover:text-white">Twitter</a>
-              <a href="#" className="hover:text-white">Instagram</a>
-              <a href="#" className="hover:text-white">LinkedIn</a>
+              <a href="https://www.instagram.com/diabetesbrasil2025" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram</a>
             </div>
           </div>
         </div>

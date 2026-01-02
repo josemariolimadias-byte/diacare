@@ -9,6 +9,7 @@ import SettingsPage from './components/SettingsPage';
 import Onboarding from './components/Onboarding';
 import Auth from './components/Auth';
 import LandingPage from './components/LandingPage';
+import ContactPage from './components/ContactPage';
 
 const NavItem: React.FC<{ active: boolean; onClick: () => void; icon: string; label: string }> = ({ active, onClick, icon, label }) => (
   <button
@@ -25,6 +26,7 @@ const NavItem: React.FC<{ active: boolean; onClick: () => void; icon: string; la
 
 const App: React.FC = () => {
   const [showSystem, setShowSystem] = useState(false);
+  const [showContact, setShowContact] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -80,8 +82,12 @@ const App: React.FC = () => {
     fetchData();
   }, [authUser]);
 
+  // Seção Pública (Landing ou Contato)
   if (!showSystem && !authUser) {
-    return <LandingPage onEnterSystem={() => setShowSystem(true)} />;
+    if (showContact) {
+      return <ContactPage onBack={() => setShowContact(false)} />;
+    }
+    return <LandingPage onEnterSystem={() => setShowSystem(true)} onContactClick={() => setShowContact(true)} />;
   }
 
   if (loading && !authUser) {
@@ -93,7 +99,7 @@ const App: React.FC = () => {
   }
 
   if (!authUser) {
-    return <Auth onLogin={setAuthUser} onBack={() => setShowSystem(false)} />;
+    return <Auth onLogin={setAuthUser} onBack={() => { setShowSystem(false); setShowContact(false); }} />;
   }
 
   if (loading) {
@@ -122,6 +128,7 @@ const App: React.FC = () => {
     if (window.confirm('Deseja realmente sair?')) {
       await StorageService.logout();
       setShowSystem(false);
+      setShowContact(false);
     }
   };
 

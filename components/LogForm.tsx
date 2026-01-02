@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { UserProfile, LogEntry, CarbUnit } from '../types';
+import PlateBuilder from './PlateBuilder';
 
 interface LogFormProps {
   user: UserProfile;
@@ -18,6 +19,8 @@ const LogForm: React.FC<LogFormProps> = ({ user, initialLog, onAdd, onCancel }) 
   const [correctionInsulin, setCorrectionInsulin] = useState<string>(initialLog?.correctionInsulin.toString() || '0');
   const [basalInsulin, setBasalInsulin] = useState<string>(initialLog?.basalInsulin.toString() || '0');
   const [pills, setPills] = useState<string>(initialLog?.pills.toString() || '0');
+  
+  const [showPlateBuilder, setShowPlateBuilder] = useState(false);
 
   useEffect(() => {
     const gValue = parseFloat(glucose);
@@ -59,6 +62,31 @@ const LogForm: React.FC<LogFormProps> = ({ user, initialLog, onAdd, onCancel }) 
     };
     onAdd(entry);
   };
+
+  const handlePlateConsume = (total: number) => {
+    setCarbAmount(total.toString());
+    setShowPlateBuilder(false);
+  };
+
+  if (showPlateBuilder) {
+    return (
+      <div className="max-w-5xl mx-auto">
+        <div className="mb-8 flex items-center justify-between">
+           <div>
+              <h2 className="text-2xl font-black text-slate-800">Contagem de Carboidratos</h2>
+              <p className="text-sm text-slate-500 font-medium">Monte seu prato para calcular o total de carbos.</p>
+           </div>
+           <button 
+             onClick={() => setShowPlateBuilder(false)}
+             className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600"
+           >
+             Fechar Calculadora
+           </button>
+        </div>
+        <PlateBuilder onConsume={handlePlateConsume} onCancel={() => setShowPlateBuilder(false)} />
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
@@ -102,8 +130,17 @@ const LogForm: React.FC<LogFormProps> = ({ user, initialLog, onAdd, onCancel }) 
                 required
               />
             </div>
-            <div className="p-5 bg-emerald-50/50 rounded-3xl border border-emerald-100/50">
-              <label className="block text-[11px] font-black text-emerald-600 uppercase tracking-widest mb-2">Carboidratos ({user.carbUnit === CarbUnit.GRAMS ? 'g' : 'Eq'})</label>
+            <div className="p-5 bg-emerald-50/50 rounded-3xl border border-emerald-100/50 relative group">
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-[11px] font-black text-emerald-600 uppercase tracking-widest">Carboidratos ({user.carbUnit === CarbUnit.GRAMS ? 'g' : 'Eq'})</label>
+                <button
+                  type="button"
+                  onClick={() => setShowPlateBuilder(true)}
+                  className="text-[9px] font-black text-emerald-600 bg-white px-2 py-1 rounded-lg border border-emerald-100 hover:bg-emerald-50 transition-colors uppercase tracking-tight"
+                >
+                  🧮 Calculadora
+                </button>
+              </div>
               <input
                 type="number"
                 placeholder="0"

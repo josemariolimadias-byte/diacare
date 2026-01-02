@@ -6,9 +6,10 @@ import { GoogleGenAI, Type } from "@google/genai";
 
 interface PlateBuilderProps {
   onConsume: (totalCarbs: number) => void;
+  onCancel?: () => void;
 }
 
-const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
+const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume, onCancel }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>(CATEGORIES[0]);
   const [searchTerm, setSearchTerm] = useState('');
   const [plate, setPlate] = useState<PlateItem[]>([]);
@@ -48,7 +49,8 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
     
     setLoadingAi(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      // Corrected to ensure apiKey is string to fix build error TS2345
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Estime as informações nutricionais (carboidratos em gramas e calorias) para uma porção padrão de: "${searchTerm}". 
@@ -69,14 +71,15 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
         }
       });
       
-      const result = JSON.parse(response.text);
+      const text = response.text || "{}";
+      const result = JSON.parse(text);
       const newItem: PlateItem = {
         foodId: 'ai-' + Date.now(),
-        foodName: result.name,
-        variationLabel: result.portion,
+        foodName: result.name || searchTerm,
+        variationLabel: result.portion || '100g',
         quantity: 1,
-        totalCarbs: result.carbs,
-        totalCalories: result.calories
+        totalCarbs: result.carbs || 0,
+        totalCalories: result.calories || 0
       };
       setPlate([...plate, newItem]);
       setSearchTerm('');
@@ -136,19 +139,19 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
   const totalKcal = Math.round(plate.reduce((acc, item) => acc + item.totalCalories, 0) * 10) / 10;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
       <div className="lg:col-span-2 space-y-5">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <h2 className="text-base font-black flex items-center gap-2 text-slate-800">
-              <span>🛒</span> Oficial SBD
+              <span>🔍</span> Buscar Alimentos
             </h2>
             <div className="relative flex-1 md:max-w-[340px] flex gap-2">
               <div className="relative flex-1">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
                 <input
                   type="text"
-                  placeholder="Buscar ou perguntar à IA..."
+                  placeholder="Pizza, Maçã, Arroz..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all"
@@ -159,7 +162,7 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
                 disabled={loadingAi || !searchTerm.trim()}
                 className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-md shadow-blue-100 flex items-center gap-2 shrink-0"
               >
-                {loadingAi ? '...' : '🤖 IA'}
+                {loadingAi ? '...' : '✨ IA'}
               </button>
             </div>
           </div>
@@ -195,12 +198,12 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
               </button>
             )) : searchTerm.trim() !== '' && !loadingAi && (
               <div className="col-span-full py-12 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                <p className="text-sm text-slate-400 font-medium mb-4">Nenhum resultado local. Use a IA para estimar!</p>
+                <p className="text-sm text-slate-400 font-medium mb-4">Nenhum resultado local para "{searchTerm}"</p>
                 <button
                   onClick={handleAiSearch}
                   className="bg-white hover:bg-blue-50 text-blue-600 px-6 py-3 rounded-xl text-xs font-black border border-blue-100 uppercase tracking-widest transition-all shadow-sm"
                 >
-                  ✨ Analisar "{searchTerm}" com IA
+                  ✨ Usar IA para analisar "{searchTerm}"
                 </button>
               </div>
             )}
@@ -222,7 +225,10 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
               <input type="number" value={customFoodCarbs} onChange={(e) => setCustomFoodCarbs(e.target.value)} placeholder="Carbos (g)" className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold" />
               <input type="number" value={customFoodKcal} onChange={(e) => setCustomFoodKcal(e.target.value)} placeholder="Kcal" className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold" />
             </div>
-            <button onClick={handleAddCustom} className="w-full mt-6 py-4 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-700">ADICIONAR</button>
+            <div className="flex gap-2 mt-6">
+              <button onClick={() => setIsOtherMode(false)} className="flex-1 py-4 border border-slate-200 rounded-xl font-black text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-50">CANCELAR</button>
+              <button onClick={handleAddCustom} className="flex-[2] py-4 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-700">ADICIONAR</button>
+            </div>
           </div>
         )}
 
@@ -254,9 +260,9 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
         )}
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full overflow-hidden max-h-[650px]">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full overflow-hidden min-h-[400px]">
         <div className="px-5 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="text-xs font-black text-slate-700 uppercase tracking-widest">Seu Prato</h2>
+          <h2 className="text-xs font-black text-slate-700 uppercase tracking-widest">Contador</h2>
           {plate.length > 0 && (
              <button onClick={() => setPlate([])} className="text-[10px] font-bold text-red-400 uppercase">Limpar</button>
           )}
@@ -265,15 +271,14 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
           {plate.length === 0 ? (
             <div className="text-center py-20 text-slate-300">
               <div className="text-4xl mb-3 opacity-50">🍽️</div>
-              <p className="text-xs font-black uppercase tracking-tight">Vazio</p>
+              <p className="text-[10px] font-black uppercase tracking-tight">Adicione itens ao prato</p>
             </div>
           ) : (
             plate.map((item, idx) => (
-              <div key={idx} className="flex justify-between items-start group">
+              <div key={idx} className="flex justify-between items-start group border-b border-slate-50 pb-3 last:border-0">
                 <div className="flex-1 min-w-0 pr-3">
                   <div className="font-black text-slate-700 text-sm truncate">{item.foodName}</div>
                   <div className="text-[10px] text-slate-400 font-bold">{item.quantity}x {item.variationLabel}</div>
-                  <div className="text-[9px] text-blue-500 font-bold">{item.totalCalories} kcal</div>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-black text-slate-800 text-xs bg-slate-100 px-2 py-1 rounded-lg">{item.totalCarbs}g</span>
@@ -288,17 +293,27 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
             <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Total Carboidratos:</span>
             <span className="text-xl font-black text-blue-700">{totalCarbs}g</span>
           </div>
-          <div className="flex justify-between items-center mb-5">
+          <div className="flex justify-between items-center mb-6">
             <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Total Calorias:</span>
             <span className="text-sm font-bold text-slate-600">{totalKcal} kcal</span>
           </div>
-          <button
-            onClick={() => onConsume(totalCarbs)}
-            disabled={plate.length === 0}
-            className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-blue-700 transition-all disabled:opacity-30 shadow-xl shadow-blue-100"
-          >
-            VOU CONSUMIR
-          </button>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => onConsume(totalCarbs)}
+              disabled={plate.length === 0}
+              className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-blue-700 transition-all disabled:opacity-30 shadow-xl shadow-blue-100"
+            >
+              CONFIRMAR CARBOIDRATOS
+            </button>
+            {onCancel && (
+              <button
+                onClick={onCancel}
+                className="w-full py-4 text-slate-400 font-black text-[10px] uppercase tracking-widest hover:text-slate-600"
+              >
+                VOLTAR
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

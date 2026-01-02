@@ -6,6 +6,10 @@ interface LandingPageProps {
 }
 
 const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem }) => {
+  const apiKey = process.env.API_KEY || '';
+  const lastFourDigits = apiKey.slice(-4);
+  const isApiConnected = apiKey.length > 0;
+
   return (
     <div className="min-h-screen bg-white font-['Inter'] selection:bg-blue-100 selection:text-blue-700">
       {/* SEÇÃO 1: CABEÇALHO COM MENU */}
@@ -135,7 +139,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem }) => {
       <footer className="bg-slate-900 text-white py-20 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 border-b border-white/10 pb-12">
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-sm">D</div>
                 <span className="text-xl font-black tracking-tight">DiaCare</span>
@@ -143,6 +147,20 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem }) => {
               <p className="text-slate-400 text-sm font-medium leading-relaxed">
                 Cuidando de você através da tecnologia e precisão clínica.
               </p>
+              
+              {/* API Status Indicator */}
+              {isApiConnected && (
+                <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2.5 rounded-2xl">
+                  <div className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400 leading-none">API CONECTADA</span>
+                    <span className="text-[9px] font-bold text-slate-500 mt-0.5 tracking-tighter">GEMINI ACTIVE ••••{lastFourDigits}</span>
+                  </div>
+                </div>
+              )}
             </div>
             
             <div>

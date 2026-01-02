@@ -33,6 +33,10 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'logs' | 'settings'>('dashboard');
   const [editingLog, setEditingLog] = useState<LogEntry | null>(null);
 
+  const apiKey = process.env.API_KEY || '';
+  const lastFourDigits = apiKey.slice(-4);
+  const isApiConnected = apiKey.length > 0;
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
@@ -183,12 +187,28 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
+        
         <div className="flex-1 flex md:flex-col justify-around md:justify-start md:p-4 gap-1.5 overflow-x-auto scrollbar-hide">
           <NavItem active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon="📊" label="Início" />
           <NavItem active={activeTab === 'logs'} onClick={handleNewLog} icon="📝" label="Registrar" />
           <NavItem active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} icon="⚙️" label="Ajustes" />
         </div>
-        <div className="hidden md:block p-6 mt-2 border-t border-blue-600/30">
+
+        <div className="hidden md:block p-6 mt-auto border-t border-blue-600/30 space-y-6">
+          {/* Internal API Status */}
+          {isApiConnected && (
+            <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-3 rounded-2xl">
+              <div className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </div>
+              <div className="flex flex-col overflow-hidden">
+                <span className="text-[8px] font-black uppercase tracking-widest text-emerald-400 leading-none">API CONECTADA</span>
+                <span className="text-[8px] font-bold text-blue-200 mt-1 truncate">••••{lastFourDigits}</span>
+              </div>
+            </div>
+          )}
+          
           <button onClick={handleLogout} className="flex items-center gap-4 py-4 px-5 rounded-2xl transition-all w-full group text-blue-100 hover:bg-red-500/20 hover:text-red-200">
             <span className="text-xl">🚪</span>
             <span className="text-xs font-black uppercase tracking-widest">Sair</span>

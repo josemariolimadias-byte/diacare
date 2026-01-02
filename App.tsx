@@ -94,11 +94,23 @@ const App: React.FC = () => {
     );
   }
 
-  if (!userProfile) {
-    return <Onboarding authUser={authUser} onComplete={async (p) => {
+  const handleOnboardingComplete = async (p: UserProfile) => {
+    try {
       await StorageService.saveProfile(p);
       setUserProfile(p);
-    }} />;
+    } catch (err: any) {
+      console.error("Erro ao salvar perfil:", err);
+      const msg = err.message || "";
+      if (msg.includes("row-level security")) {
+        alert("Erro de Permissão (RLS): O banco de dados do Supabase está bloqueando a criação do perfil. Certifique-se de que a política RLS da tabela 'profiles' permite INSERT para usuários autenticados.");
+      } else {
+        alert("Não foi possível salvar seu perfil: " + msg);
+      }
+    }
+  };
+
+  if (!userProfile) {
+    return <Onboarding authUser={authUser} onComplete={handleOnboardingComplete} />;
   }
 
   const handleLogout = async () => {
@@ -115,14 +127,13 @@ const App: React.FC = () => {
         setLogs(logs.map(l => l.id === editingLog.id ? logWithUser : l));
       } else {
         await StorageService.addLog(logWithUser);
-        // Recarregamos para pegar o ID gerado pelo banco ou usamos localmente
         const updatedLogs = await StorageService.getLogs(authUser.id);
         setLogs(updatedLogs);
       }
       setActiveTab('dashboard');
       setEditingLog(null);
     } catch (err) {
-      alert("Erro ao salvar log. Verifique sua conexão.");
+      alert("Erro ao salvar log. Verifique se as políticas RLS da tabela 'logs' permitem a inserção.");
     }
   };
 
@@ -144,8 +155,12 @@ const App: React.FC = () => {
   };
 
   const saveProfileUpdate = async (updatedProfile: UserProfile) => {
-    await StorageService.saveProfile(updatedProfile);
-    setUserProfile(updatedProfile);
+    try {
+      await StorageService.saveProfile(updatedProfile);
+      setUserProfile(updatedProfile);
+    } catch (err) {
+      alert("Erro ao atualizar perfil.");
+    }
   };
 
   return (

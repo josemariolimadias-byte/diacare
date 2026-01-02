@@ -5,11 +5,12 @@ import { RAPID_INSULINS, BASAL_INSULINS, DIABETES_TYPES } from '../constants';
 
 interface OnboardingProps {
   authUser: AuthUser;
-  onComplete: (user: UserProfile) => void;
+  onComplete: (user: UserProfile) => Promise<void>;
 }
 
 const Onboarding: React.FC<OnboardingProps> = ({ authUser, onComplete }) => {
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [profile, setProfile] = useState<Partial<UserProfile>>({
     userId: authUser.id,
     fullName: '',
@@ -31,7 +32,15 @@ const Onboarding: React.FC<OnboardingProps> = ({ authUser, onComplete }) => {
   });
 
   const next = () => setStep(step + 1);
-  const finish = () => onComplete(profile as UserProfile);
+  
+  const finish = async () => {
+    setIsSubmitting(true);
+    try {
+      await onComplete(profile as UserProfile);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-blue-700 flex items-center justify-center p-4">
@@ -146,13 +155,20 @@ const Onboarding: React.FC<OnboardingProps> = ({ authUser, onComplete }) => {
 
             <button
               onClick={finish}
-              className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold mt-6 hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-200 transform active:scale-95"
+              disabled={isSubmitting}
+              className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold mt-6 hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-200 transform active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              Finalizar e Entrar
+              {isSubmitting ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                  Salvando...
+                </>
+              ) : 'Finalizar e Entrar'}
             </button>
             <button 
               onClick={() => setStep(1)}
-              className="w-full py-2 text-slate-400 text-sm font-medium hover:text-slate-600 transition-colors"
+              disabled={isSubmitting}
+              className="w-full py-2 text-slate-400 text-sm font-medium hover:text-slate-600 transition-colors disabled:opacity-30"
             >
               Voltar
             </button>

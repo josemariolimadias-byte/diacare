@@ -22,13 +22,18 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
     try {
       let user;
       if (isLogin) {
+        console.log("Tentando login com:", email);
         user = await StorageService.login(email, password);
       } else {
+        console.log("Tentando cadastro com:", email);
         user = await StorageService.signup(email, password);
       }
+      console.log("Sucesso! Usuário retornado:", user);
       onLogin(user);
     } catch (err: any) {
-      setError(err.message || 'Ocorreu um erro inesperado. Tente novamente.');
+      console.error("ERRO NA AUTENTICAÇÃO:", err);
+      // Se o erro for do Supabase, ele terá uma mensagem clara
+      setError(err.message || 'Ocorreu um erro inesperado. Verifique o console.');
     } finally {
       setLoading(false);
     }
@@ -79,7 +84,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
             disabled={loading}
             className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 transform active:scale-95 disabled:opacity-50"
           >
-            {loading ? 'Validando Acesso...' : isLogin ? 'Entrar no DiaCare' : 'Criar Minha Conta'}
+            {loading ? 'Processando...' : isLogin ? 'Entrar no DiaCare' : 'Criar Minha Conta'}
           </button>
         </form>
 

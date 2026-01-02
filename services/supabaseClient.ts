@@ -1,12 +1,15 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Accessing environment variables via process.env as defined in vite.config.ts to avoid TS errors with import.meta.env in non-Vite-typed environments
+// No Vite, as variáveis podem ser injetadas via define no vite.config.ts.
+// Usamos process.env para evitar erros de tipagem no objeto ImportMeta (lib.dom/lib.esnext.meta).
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn("Supabase URL ou Anon Key não encontrados. Verifique as variáveis de ambiente.");
+  console.error("ERRO DIACARE: Chaves do Supabase não encontradas! Verifique o painel da Vercel.");
+} else {
+  console.log("DIACARE: Conectando ao Supabase em:", supabaseUrl);
 }
 
 export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');

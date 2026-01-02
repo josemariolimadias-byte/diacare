@@ -1,61 +1,170 @@
 
 import { UserProfile, LogEntry, AuthUser } from '../types';
-
-/**
- * Este serviço simula uma API real. 
- * Todas as funções são assíncronas (async) para que, ao conectar com o Supabase,
- * o restante do aplicativo não precise sofrer alterações estruturais.
- */
-
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+import { supabase } from './supabaseClient';
 
 export const StorageService = {
-  // --- AUTH SIMULATION ---
+  
+  // --- AUTENTICAÇÃO REAL ---
+  
   async login(email: string, password: string): Promise<AuthUser> {
-    await delay(800);
-    // Simulação: qualquer email/senha funciona por enquanto
-    const user: AuthUser = { id: btoa(email), email };
-    localStorage.setItem('diacare_auth', JSON.stringify(user));
-    return user;
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    if (!data.user) throw new Error("Usuário não encontrado");
+    
+    return { id: data.user.id, email: data.user.email! };
   },
 
   async signup(email: string, password: string): Promise<AuthUser> {
-    await delay(1000);
-    const user: AuthUser = { id: btoa(email), email };
-    localStorage.setItem('diacare_auth', JSON.stringify(user));
-    return user;
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) throw error;
+    if (!data.user) throw new Error("Erro ao criar usuário");
+    
+    return { id: data.user.id, email: data.user.email! };
+  },
+
+  async logout() {
+    await supabase.auth.signOut();
   },
 
   getCurrentAuthUser(): AuthUser | null {
-    const saved = localStorage.getItem('diacare_auth');
-    return saved ? JSON.parse(saved) : null;
+    // Para SSR ou inicialização síncrona, mas o ideal é usar o listener no App.tsx
+    const user = supabase.auth.getUser();
+    // Nota: getUser() é async, aqui retornamos nulo para deixar o listener do App.tsx assumir
+    return null; 
   },
 
-  logout() {
-    localStorage.removeItem('diacare_auth');
-  },
+  // --- PERFIL DO PACIENTE NO SUPABASE ---
 
-  // --- PROFILE ---
   async getProfile(userId: string): Promise<UserProfile | null> {
-    await delay(300);
-    const saved = localStorage.getItem(`diacare_profile_${userId}`);
-    return saved ? JSON.parse(saved) : null;
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    
+    if (error && error.code !== 'PGRST116') { // PGRST116 é "não encontrado"
+      console.error("Erro ao buscar perfil:", error);
+      return null;
+    }
+
+    if (!data) return null;
+
+    // Mapear snake_case do DB para camelCase do TS
+    return {
+      userId: data.id,
+      fullName: data.full_name,
+      birthDate: data.birth_date,
+      gender: data.gender,
+      diagnosisYear: data.diagnosis_year,
+      diabetesType: data.diabetes_type,
+      rapidInsulin: data.rapid_insulin,
+      basalInsulin: data.basal_insulin,
+      glucoseUnit: data.glucose_unit,
+      carbUnit: data.carb_unit,
+      targetGlucose: data.target_glucose,
+      hyperThreshold: data.hyper_threshold,
+      hypoThreshold: data.hypo_threshold,
+      targetRangeMin: data.target_range_min,
+      targetRangeMax: data.target_range_max,
+      height: data.height,
+      weight: data.weight
+    } as UserProfile;
   },
 
   async saveProfile(profile: UserProfile): Promise<void> {
-    await delay(500);
-    localStorage.setItem(`diacare_profile_${profile.userId}`, JSON.stringify(profile));
+    const { error } = await supabase
+      .from('profiles')
+      .upsert({
+        id: profile.userId,
+        full_name: profile.fullName,
+        birth_date: profile.birthDate,
+        gender: profile.gender,
+        diagnosis_year: profile.diagnosisYear,
+        diabetes_type: profile.diabetesType,
+        rapid_insulin: profile.rapidInsulin,
+        basal_insulin: profile.basalInsulin,
+        glucose_unit: profile.glucoseUnit,
+        carb_unit: profile.carbUnit,
+        target_glucose: profile.targetGlucose,
+        hyper_threshold: profile.hyperThreshold,
+        hypo_threshold: profile.hypoThreshold,
+        target_range_min: profile.targetRangeMin,
+        target_range_max: profile.targetRangeMax,
+        height: profile.height,
+        weight: profile.weight
+      });
+    
+    if (error) throw error;
   },
 
-  // --- LOGS ---
+  // --- REGISTROS NO SUPABASE ---
+
   async getLogs(userId: string): Promise<LogEntry[]> {
-    await delay(400);
-    const saved = localStorage.getItem(`diacare_logs_${userId}`);
-    return saved ? JSON.parse(saved) : [];
+    const { data, error } = await supabase
+      .from('logs')
+      .select('*')
+      .eq('user_id', userId)
+      .order('date', { ascending: false })
+      .order('time', { ascending: false });
+    
+    if (error) throw error;
+
+    return (data || []).map(d => ({
+      id: d.id,
+      userId: d.user_id,
+      date: d.date,
+      time: d.time,
+      glucose: d.glucose,
+      carbAmount: d.carb_amount,
+      mealInsulin: d.meal_insulin,
+      correctionInsulin: d.correction_insulin,
+      basalInsulin: d.basal_insulin,
+      pills: d.pills,
+      notes: d.notes
+    }));
   },
 
-  async saveLogs(userId: string, logs: LogEntry[]): Promise<void> {
-    await delay(300);
-    localStorage.setItem(`diacare_logs_${userId}`, JSON.stringify(logs));
+  async addLog(log: LogEntry): Promise<void> {
+    const { error } = await supabase
+      .from('logs')
+      .insert({
+        user_id: log.userId,
+        date: log.date,
+        time: log.time,
+        glucose: log.glucose,
+        carb_amount: log.carbAmount,
+        meal_insulin: log.mealInsulin,
+        correction_insulin: log.correctionInsulin,
+        basal_insulin: log.basalInsulin,
+        pills: log.pills,
+        notes: log.notes
+      });
+    if (error) throw error;
+  },
+
+  async updateLog(log: LogEntry): Promise<void> {
+    const { error } = await supabase
+      .from('logs')
+      .update({
+        date: log.date,
+        time: log.time,
+        glucose: log.glucose,
+        carb_amount: log.carbAmount,
+        meal_insulin: log.mealInsulin,
+        correction_insulin: log.correctionInsulin,
+        basal_insulin: log.basalInsulin,
+        pills: log.pills,
+        notes: log.notes
+      })
+      .eq('id', log.id);
+    if (error) throw error;
+  },
+
+  async deleteLog(logId: string): Promise<void> {
+    const { error } = await supabase
+      .from('logs')
+      .delete()
+      .eq('id', logId);
+    if (error) throw error;
   }
 };

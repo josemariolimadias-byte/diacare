@@ -27,8 +27,8 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
         user = await StorageService.signup(email, password);
       }
       onLogin(user);
-    } catch (err) {
-      setError('Ocorreu um erro. Tente novamente.');
+    } catch (err: any) {
+      setError(err.message || 'Ocorreu um erro inesperado. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -44,17 +44,21 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {error && <div className="p-4 bg-red-50 text-red-600 text-xs font-bold rounded-xl border border-red-100">{error}</div>}
+          {error && (
+            <div className="p-4 bg-red-50 text-red-600 text-[11px] font-black uppercase tracking-wider rounded-2xl border border-red-100 animate-bounce">
+              ⚠️ {error}
+            </div>
+          )}
           
           <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">E-mail</label>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">E-mail de Acesso</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="exemplo@email.com"
-              className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium"
+              className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-bold text-slate-700"
             />
           </div>
 
@@ -66,7 +70,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium"
+              className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-bold text-slate-700"
             />
           </div>
 
@@ -75,16 +79,16 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
             disabled={loading}
             className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 transform active:scale-95 disabled:opacity-50"
           >
-            {loading ? 'Processando...' : isLogin ? 'Entrar no Sistema' : 'Criar minha conta'}
+            {loading ? 'Validando Acesso...' : isLogin ? 'Entrar no DiaCare' : 'Criar Minha Conta'}
           </button>
         </form>
 
         <div className="mt-8 text-center">
           <button
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-sm font-bold text-slate-400 hover:text-blue-600 transition-colors"
+            onClick={() => { setIsLogin(!isLogin); setError(''); }}
+            className="text-xs font-black text-slate-400 hover:text-blue-600 transition-colors uppercase tracking-widest"
           >
-            {isLogin ? 'Não tem uma conta? Cadastre-se' : 'Já tem uma conta? Faça Login'}
+            {isLogin ? 'Novo por aqui? Cadastre-se' : 'Já sou paciente? Fazer Login'}
           </button>
         </div>
       </div>

@@ -2,6 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { FOOD_DATABASE, CATEGORIES } from '../constants';
 import { FoodItem, FoodItemVariation, PlateItem } from '../types';
+import { GoogleGenAI, Type } from "@google/genai";
 
 interface PlateBuilderProps {
   onConsume: (totalCarbs: number) => void;
@@ -13,6 +14,7 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
   const [plate, setPlate] = useState<PlateItem[]>([]);
   const [activeFood, setActiveFood] = useState<FoodItem | null>(null);
   const [variationQuantities, setVariationQuantities] = useState<{[key: number]: number}>({});
+  const [loadingAi, setLoadingAi] = useState(false);
 
   useEffect(() => {
     if (activeFood) {
@@ -39,6 +41,52 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
     }
     return list.sort((a, b) => a.name.localeCompare(b.name));
   }, [selectedCategory, searchTerm]);
+
+  // Use Gemini AI to estimate nutritional values when local search fails
+  const handleAiSearch = async () => {
+    if (!searchTerm.trim()) return;
+    
+    setLoadingAi(true);
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: `Estime as informações nutricionais (carboidratos em gramas e calorias) para uma porção padrão de: "${searchTerm}". 
+        Responda em JSON seguindo exatamente este formato: {"name": string, "carbs": number, "calories": number, "portion": string}. 
+        Use valores médios realistas.`,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              name: { type: Type.STRING, description: "Nome do alimento" },
+              carbs: { type: Type.NUMBER, description: "Gramas de carboidrato" },
+              calories: { type: Type.NUMBER, description: "Total de calorias" },
+              portion: { type: Type.STRING, description: "Descrição da porção (ex: 100g, 1 xícara)" }
+            },
+            required: ["name", "carbs", "calories", "portion"]
+          }
+        }
+      });
+      
+      const result = JSON.parse(response.text);
+      const newItem: PlateItem = {
+        foodId: 'ai-' + Date.now(),
+        foodName: result.name,
+        variationLabel: result.portion,
+        quantity: 1,
+        totalCarbs: result.carbs,
+        totalCalories: result.calories
+      };
+      setPlate([...plate, newItem]);
+      setSearchTerm('');
+    } catch (err) {
+      console.error("Gemini AI error:", err);
+      alert("Erro ao consultar a IA. Tente descrever o alimento de outra forma ou use a entrada manual.");
+    } finally {
+      setLoadingAi(false);
+    }
+  };
 
   const addToPlate = (food: FoodItem, variation: FoodItemVariation, quantity: number) => {
     if (quantity <= 0) return;
@@ -95,15 +143,24 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
             <h2 className="text-base font-black flex items-center gap-2 text-slate-800">
               <span>🛒</span> Oficial SBD
             </h2>
-            <div className="relative flex-1 md:max-w-[280px]">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
-              <input
-                type="text"
-                placeholder="Buscar alimento oficial..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-              />
+            <div className="relative flex-1 md:max-w-[340px] flex gap-2">
+              <div className="relative flex-1">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+                <input
+                  type="text"
+                  placeholder="Buscar ou perguntar à IA..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                />
+              </div>
+              <button
+                onClick={handleAiSearch}
+                disabled={loadingAi || !searchTerm.trim()}
+                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-md shadow-blue-100 flex items-center gap-2 shrink-0"
+              >
+                {loadingAi ? '...' : '🤖 IA'}
+              </button>
             </div>
           </div>
 
@@ -123,7 +180,7 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[450px] overflow-y-auto pr-2">
-            {filteredFoods.map(food => (
+            {filteredFoods.length > 0 ? filteredFoods.map(food => (
               <button
                 key={food.id}
                 onClick={() => { setActiveFood(food); setIsOtherMode(false); }}
@@ -136,7 +193,17 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume }) => {
                 </div>
                 <span className="text-blue-500 text-[10px] font-black opacity-0 group-hover:opacity-100">SELECIONAR</span>
               </button>
-            ))}
+            )) : searchTerm.trim() !== '' && !loadingAi && (
+              <div className="col-span-full py-12 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                <p className="text-sm text-slate-400 font-medium mb-4">Nenhum resultado local. Use a IA para estimar!</p>
+                <button
+                  onClick={handleAiSearch}
+                  className="bg-white hover:bg-blue-50 text-blue-600 px-6 py-3 rounded-xl text-xs font-black border border-blue-100 uppercase tracking-widest transition-all shadow-sm"
+                >
+                  ✨ Analisar "{searchTerm}" com IA
+                </button>
+              </div>
+            )}
             
             <button
                 onClick={() => { setIsOtherMode(true); setActiveFood(null); }}

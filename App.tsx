@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserProfile, LogEntry, AuthUser } from './types';
 import { StorageService } from './services/storage';
+import { supabase } from './services/supabaseClient';
 import Dashboard from './components/Dashboard';
 import LogForm from './components/LogForm';
 import SettingsPage from './components/SettingsPage';
@@ -22,7 +23,7 @@ const NavItem: React.FC<{ active: boolean; onClick: () => void; icon: string; la
 );
 
 const App: React.FC = () => {
-  const [authUser, setAuthUser] = useState<AuthUser | null>(StorageService.getCurrentAuthUser());
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,31 +31,56 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'logs' | 'settings'>('dashboard');
   const [editingLog, setEditingLog] = useState<LogEntry | null>(null);
 
+  // Listener de Autenticação do Supabase
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setAuthUser({ id: session.user.id, email: session.user.email! });
+      } else {
+        setLoading(false);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setAuthUser({ id: session.user.id, email: session.user.email! });
+      } else {
+        setAuthUser(null);
+        setUserProfile(null);
+        setLogs([]);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Busca de dados quando o usuário loga
   useEffect(() => {
     const fetchData = async () => {
       if (authUser) {
         setLoading(true);
-        const profile = await StorageService.getProfile(authUser.id);
-        const userLogs = await StorageService.getLogs(authUser.id);
-        setUserProfile(profile);
-        setLogs(userLogs);
+        try {
+          const profile = await StorageService.getProfile(authUser.id);
+          const userLogs = await StorageService.getLogs(authUser.id);
+          setUserProfile(profile);
+          setLogs(userLogs);
+        } catch (err) {
+          console.error("Erro ao buscar dados:", err);
+        } finally {
+          setLoading(false);
+        }
       }
-      setLoading(false);
     };
     fetchData();
   }, [authUser]);
 
-  useEffect(() => {
-    if (authUser && logs.length > 0) {
-      StorageService.saveLogs(authUser.id, logs);
-    }
-  }, [logs, authUser]);
-
-  useEffect(() => {
-    if (userProfile) {
-      StorageService.saveProfile(userProfile);
-    }
-  }, [userProfile]);
+  if (loading && !authUser) {
+    return (
+      <div className="min-h-screen bg-blue-700 flex items-center justify-center">
+        <div className="text-white font-black text-xl animate-pulse">Iniciando DiaCare...</div>
+      </div>
+    );
+  }
 
   if (!authUser) {
     return <Auth onLogin={setAuthUser} />;
@@ -63,39 +89,48 @@ const App: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-blue-700 flex items-center justify-center">
-        <div className="text-white font-black text-xl animate-pulse">Carregando DiaCare...</div>
+        <div className="text-white font-black text-xl animate-pulse">Sincronizando...</div>
       </div>
     );
   }
 
   if (!userProfile) {
-    return <Onboarding authUser={authUser} onComplete={setUserProfile} />;
+    return <Onboarding authUser={authUser} onComplete={async (p) => {
+      await StorageService.saveProfile(p);
+      setUserProfile(p);
+    }} />;
   }
 
-  const handleLogout = () => {
-    if (window.confirm('Deseja realmente sair do sistema? Seus dados estão seguros e vinculados à sua conta.')) {
-      StorageService.logout();
-      setAuthUser(null);
-      setUserProfile(null);
-      setLogs([]);
+  const handleLogout = async () => {
+    if (window.confirm('Deseja realmente sair?')) {
+      await StorageService.logout();
+    }
+  };
+
+  const saveLog = async (entry: LogEntry) => {
+    try {
+      const logWithUser = { ...entry, userId: authUser.id };
+      if (editingLog) {
+        await StorageService.updateLog(logWithUser);
+        setLogs(logs.map(l => l.id === editingLog.id ? logWithUser : l));
+      } else {
+        await StorageService.addLog(logWithUser);
+        // Recarregamos para pegar o ID gerado pelo banco ou usamos localmente
+        const updatedLogs = await StorageService.getLogs(authUser.id);
+        setLogs(updatedLogs);
+      }
       setActiveTab('dashboard');
       setEditingLog(null);
+    } catch (err) {
+      alert("Erro ao salvar log. Verifique sua conexão.");
     }
   };
 
-  const saveLog = (entry: LogEntry) => {
-    const logWithUser = { ...entry, userId: authUser.id };
-    if (editingLog) {
-      setLogs(logs.map(l => l.id === editingLog.id ? logWithUser : l));
-    } else {
-      setLogs([logWithUser, ...logs]);
+  const deleteLog = async (id: string) => {
+    if (window.confirm('Excluir este registro?')) {
+      await StorageService.deleteLog(id);
+      setLogs(logs.filter(l => l.id !== id));
     }
-    setActiveTab('dashboard');
-    setEditingLog(null);
-  };
-
-  const deleteLog = (id: string) => {
-    setLogs(logs.filter(l => l.id !== id));
   };
 
   const handleEditLog = (log: LogEntry) => {
@@ -108,9 +143,10 @@ const App: React.FC = () => {
     setActiveTab('logs');
   };
 
-  const envApiKey = (process.env as any).API_KEY;
-  const isApiConnected = typeof envApiKey === 'string' && envApiKey.length > 0;
-  const apiKeySuffix = isApiConnected ? envApiKey.slice(-4) : '';
+  const saveProfileUpdate = async (updatedProfile: UserProfile) => {
+    await StorageService.saveProfile(updatedProfile);
+    setUserProfile(updatedProfile);
+  };
 
   return (
     <div className="min-h-screen pb-24 md:pb-12 md:pl-64 bg-slate-50 flex flex-col items-stretch font-['Inter'] relative">
@@ -155,20 +191,9 @@ const App: React.FC = () => {
           <LogForm user={userProfile} initialLog={editingLog} onAdd={saveLog} onCancel={() => setActiveTab('dashboard')} />
         )}
         {activeTab === 'settings' && (
-          <SettingsPage user={userProfile} setUser={setUserProfile} />
+          <SettingsPage user={userProfile} setUser={saveProfileUpdate as any} />
         )}
       </main>
-
-      {isApiConnected && (
-        <footer className="fixed bottom-24 md:bottom-0 left-0 md:left-64 right-0 z-[60] bg-white/80 backdrop-blur-md border-t border-slate-200 py-2 px-6 flex items-center justify-center md:justify-end gap-3 pointer-events-none transition-all">
-          <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.8)]"></div>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">
-              API CONECTADA <span className="text-slate-300 mx-1">|</span> <span className="text-slate-800">****{apiKeySuffix}</span>
-            </span>
-          </div>
-        </footer>
-      )}
     </div>
   );
 };

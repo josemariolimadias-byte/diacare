@@ -23,6 +23,7 @@ export const BASAL_INSULINS = [
 
 export const DIABETES_TYPES = Object.values(DiabetesType);
 
-export const CATEGORIES = [];
+// Adding default categories to ensure the UI works correctly even with an empty database
+export const CATEGORIES = ['Proteínas', 'Carboidratos', 'Vegetais', 'Frutas', 'Laticínios', 'Outros', 'Bebidas'];
 
 export const FOOD_DATABASE: FoodItem[] = [];

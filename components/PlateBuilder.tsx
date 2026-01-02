@@ -43,28 +43,31 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume, onCancel }) => {
     return list.sort((a, b) => a.name.localeCompare(b.name));
   }, [selectedCategory, searchTerm]);
 
-  // Use Gemini AI to estimate nutritional values when local search fails
+  // Enhanced AI prompt to follow SBD standards
   const handleAiSearch = async () => {
     if (!searchTerm.trim()) return;
     
     setLoadingAi(true);
     try {
-      // Corrected to ensure apiKey is string to fix build error TS2345
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: `Estime as informações nutricionais (carboidratos em gramas e calorias) para uma porção padrão de: "${searchTerm}". 
-        Responda em JSON seguindo exatamente este formato: {"name": string, "carbs": number, "calories": number, "portion": string}. 
-        Use valores médios realistas.`,
+        contents: `Você é um nutricionista especialista em diabetes. 
+        Utilize estritamente os dados do "Manual de Contagem de Carboidratos da Sociedade Brasileira de Diabetes (SBD)" e do "Guia Alimentar da População Brasileira".
+        Estime as informações nutricionais para: "${searchTerm}".
+        
+        Responda APENAS em JSON seguindo este formato: 
+        {"name": string, "carbs": number, "calories": number, "portion": string}. 
+        Use valores médios REAIS das tabelas da SBD. Se o alimento for carne pura ou ovo, carbs deve ser 0 ou próximo disso conforme o manual.`,
         config: {
           responseMimeType: "application/json",
           responseSchema: {
             type: Type.OBJECT,
             properties: {
-              name: { type: Type.STRING, description: "Nome do alimento" },
-              carbs: { type: Type.NUMBER, description: "Gramas de carboidrato" },
-              calories: { type: Type.NUMBER, description: "Total de calorias" },
-              portion: { type: Type.STRING, description: "Descrição da porção (ex: 100g, 1 xícara)" }
+              name: { type: Type.STRING, description: "Nome do alimento (SBD)" },
+              carbs: { type: Type.NUMBER, description: "CHO em gramas" },
+              calories: { type: Type.NUMBER, description: "Calorias em kcal" },
+              portion: { type: Type.STRING, description: "Medida usual (ex: 1 concha, 1 colher de servir)" }
             },
             required: ["name", "carbs", "calories", "portion"]
           }
@@ -85,7 +88,7 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume, onCancel }) => {
       setSearchTerm('');
     } catch (err) {
       console.error("Gemini AI error:", err);
-      alert("Erro ao consultar a IA. Tente descrever o alimento de outra forma ou use a entrada manual.");
+      alert("Erro ao consultar a IA. Tente descrever o alimento de outra forma.");
     } finally {
       setLoadingAi(false);
     }
@@ -143,15 +146,15 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume, onCancel }) => {
       <div className="lg:col-span-2 space-y-5">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <h2 className="text-base font-black flex items-center gap-2 text-slate-800">
-              <span>🔍</span> Buscar Alimentos
+            <h2 className="text-base font-black flex items-center gap-2 text-slate-800 uppercase tracking-tight">
+              <span>🔍</span> Catálogo SBD
             </h2>
-            <div className="relative flex-1 md:max-w-[340px] flex gap-2">
+            <div className="relative flex-1 md:max-w-[380px] flex gap-2">
               <div className="relative flex-1">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
                 <input
                   type="text"
-                  placeholder="Pizza, Maçã, Arroz..."
+                  placeholder="Ex: Picanha, Feijoada, Suco de Uva..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all"
@@ -161,6 +164,7 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume, onCancel }) => {
                 onClick={handleAiSearch}
                 disabled={loadingAi || !searchTerm.trim()}
                 className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all shadow-md shadow-blue-100 flex items-center gap-2 shrink-0"
+                title="Buscar no manual completo via IA"
               >
                 {loadingAi ? '...' : '✨ IA'}
               </button>
@@ -182,7 +186,7 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume, onCancel }) => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[450px] overflow-y-auto pr-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[480px] overflow-y-auto pr-2">
             {filteredFoods.length > 0 ? filteredFoods.map(food => (
               <button
                 key={food.id}
@@ -192,18 +196,18 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume, onCancel }) => {
               >
                 <div>
                   <span className="font-bold text-slate-700 text-sm block">{food.name}</span>
-                  <span className="text-[9px] text-slate-400 font-bold uppercase">{food.variations.length} OPÇÕES</span>
+                  <span className="text-[9px] text-slate-400 font-bold uppercase">{food.variations.length} PORÇÕES</span>
                 </div>
-                <span className="text-blue-500 text-[10px] font-black opacity-0 group-hover:opacity-100">SELECIONAR</span>
+                <span className="text-blue-500 text-[10px] font-black opacity-0 group-hover:opacity-100">VER</span>
               </button>
             )) : searchTerm.trim() !== '' && !loadingAi && (
               <div className="col-span-full py-12 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                <p className="text-sm text-slate-400 font-medium mb-4">Nenhum resultado local para "{searchTerm}"</p>
+                <p className="text-sm text-slate-400 font-medium mb-4">Item não está na lista rápida.</p>
                 <button
                   onClick={handleAiSearch}
-                  className="bg-white hover:bg-blue-50 text-blue-600 px-6 py-3 rounded-xl text-xs font-black border border-blue-100 uppercase tracking-widest transition-all shadow-sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg"
                 >
-                  ✨ Usar IA para analisar "{searchTerm}"
+                  ✨ Buscar no Manual Completo (IA)
                 </button>
               </div>
             )}
@@ -212,16 +216,16 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume, onCancel }) => {
                 onClick={() => { setIsOtherMode(true); setActiveFood(null); }}
                 className="p-4 border border-dashed border-slate-300 rounded-xl text-left transition-all font-black text-sm text-slate-400 hover:border-blue-400 hover:bg-slate-50"
             >
-                <span>➕ Inserir Manualmente</span>
+                <span>➕ Adicionar Outro</span>
             </button>
           </div>
         </div>
 
         {isOtherMode && (
           <div className="bg-white p-6 rounded-2xl border-2 border-blue-100 shadow-xl animate-in slide-in-from-bottom-3 duration-300">
-            <h3 className="text-sm font-black text-blue-700 uppercase tracking-wider mb-6">Item Personalizado</h3>
+            <h3 className="text-sm font-black text-blue-700 uppercase tracking-wider mb-6">Entrada Manual</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <input type="text" value={customFoodName} onChange={(e) => setCustomFoodName(e.target.value)} placeholder="Nome" className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold" />
+              <input type="text" value={customFoodName} onChange={(e) => setCustomFoodName(e.target.value)} placeholder="Alimento" className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold" />
               <input type="number" value={customFoodCarbs} onChange={(e) => setCustomFoodCarbs(e.target.value)} placeholder="Carbos (g)" className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold" />
               <input type="number" value={customFoodKcal} onChange={(e) => setCustomFoodKcal(e.target.value)} placeholder="Kcal" className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold" />
             </div>
@@ -251,7 +255,7 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume, onCancel }) => {
                       onChange={(e) => handleQuantityChange(i, e.target.value)}
                       className="w-12 p-2 bg-white/20 rounded-lg text-center text-xs font-black text-white outline-none"
                     />
-                    <button onClick={() => addToPlate(activeFood, v, variationQuantities[i] || 1)} className="bg-white text-blue-700 px-4 py-2 rounded-lg text-[10px] font-black uppercase">ADD</button>
+                    <button onClick={() => addToPlate(activeFood, v, variationQuantities[i] || 1)} className="bg-white text-blue-700 px-4 py-2 rounded-lg text-[10px] font-black uppercase shadow-sm">ADD</button>
                   </div>
                 </div>
               ))}
@@ -262,16 +266,16 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume, onCancel }) => {
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full overflow-hidden min-h-[400px]">
         <div className="px-5 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="text-xs font-black text-slate-700 uppercase tracking-widest">Contador</h2>
+          <h2 className="text-xs font-black text-slate-700 uppercase tracking-widest">Meu Prato</h2>
           {plate.length > 0 && (
-             <button onClick={() => setPlate([])} className="text-[10px] font-bold text-red-400 uppercase">Limpar</button>
+             <button onClick={() => setPlate([])} className="text-[10px] font-bold text-red-400 uppercase hover:text-red-600 transition-colors">Zerar</button>
           )}
         </div>
         <div className="flex-1 p-5 space-y-4 overflow-y-auto">
           {plate.length === 0 ? (
             <div className="text-center py-20 text-slate-300">
               <div className="text-4xl mb-3 opacity-50">🍽️</div>
-              <p className="text-[10px] font-black uppercase tracking-tight">Adicione itens ao prato</p>
+              <p className="text-[10px] font-black uppercase tracking-tight">O prato está vazio</p>
             </div>
           ) : (
             plate.map((item, idx) => (
@@ -303,7 +307,7 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume, onCancel }) => {
               disabled={plate.length === 0}
               className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-blue-700 transition-all disabled:opacity-30 shadow-xl shadow-blue-100"
             >
-              CONFIRMAR CARBOIDRATOS
+              CONCLUIR CONTAGEM
             </button>
             {onCancel && (
               <button

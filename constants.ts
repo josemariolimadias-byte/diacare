@@ -26,29 +26,19 @@ export const DIABETES_TYPES = Object.values(DiabetesType);
 export const CATEGORIES = ['Grãos e Feijões', 'Pães e Farináceos', 'Frutas', 'Vegetais e Raízes', 'Laticínios', 'Proteínas', 'Bebidas'];
 
 export const FOOD_DATABASE: FoodItem[] = [
-  // --- GRÃOS E FEIJÕES ---
+  // --- GRÃOS E FEIJÕES (SBD pág. 91-92) ---
   {
     id: 'rice-white',
     name: 'Arroz Branco Cozido',
     category: 'Grãos e Feijões',
     variations: [
       { label: '1 colher de servir (45g)', carbsPerUnit: 15, caloriesPerUnit: 74 },
-      { label: '1 colher de sopa cheia (20g)', carbsPerUnit: 6, caloriesPerUnit: 26 },
-      { label: '1 xícara de chá (140g)', carbsPerUnit: 43, caloriesPerUnit: 100 }
-    ]
-  },
-  {
-    id: 'rice-integral',
-    name: 'Arroz Integral Cozido',
-    category: 'Grãos e Feijões',
-    variations: [
-      { label: '1 colher de sopa cheia (20g)', carbsPerUnit: 5, caloriesPerUnit: 25 },
-      { label: '1 colher de servir (45g)', carbsPerUnit: 11, caloriesPerUnit: 56 }
+      { label: '1 colher de sopa cheia (20g)', carbsPerUnit: 6, caloriesPerUnit: 26 }
     ]
   },
   {
     id: 'bean-carioquinha',
-    name: 'Feijão Carioquinha (Grão + Caldo)',
+    name: 'Feijão Carioquinha (Grão+Caldo)',
     category: 'Grãos e Feijões',
     variations: [
       { label: '1 concha média rasa (80g)', carbsPerUnit: 14, caloriesPerUnit: 89 },
@@ -56,16 +46,7 @@ export const FOOD_DATABASE: FoodItem[] = [
     ]
   },
   {
-    id: 'bean-black',
-    name: 'Feijão Preto (Grão + Caldo)',
-    category: 'Grãos e Feijões',
-    variations: [
-      { label: '1 concha média rasa (80g)', carbsPerUnit: 10, caloriesPerUnit: 61 },
-      { label: '1 concha média cheia (140g)', carbsPerUnit: 18, caloriesPerUnit: 107 }
-    ]
-  },
-  {
-    id: 'lentil',
+    id: 'lentil-cooked',
     name: 'Lentilha Cozida',
     category: 'Grãos e Feijões',
     variations: [
@@ -73,7 +54,7 @@ export const FOOD_DATABASE: FoodItem[] = [
     ]
   },
   {
-    id: 'chickpea',
+    id: 'chickpea-cooked',
     name: 'Grão de Bico Cozido',
     category: 'Grãos e Feijões',
     variations: [
@@ -81,31 +62,22 @@ export const FOOD_DATABASE: FoodItem[] = [
     ]
   },
 
-  // --- PÃES E FARINÁCEOS ---
+  // --- PÃES E FARINÁCEOS (SBD pág. 121-127) ---
   {
     id: 'bread-french',
     name: 'Pão Francês',
     category: 'Pães e Farináceos',
     variations: [
-      { label: '1 unidade (50g)', carbsPerUnit: 29, caloriesPerUnit: 135 },
-      { label: 'Miolo (25g)', carbsPerUnit: 14, caloriesPerUnit: 68 }
+      { label: '1 unidade (50g)', carbsPerUnit: 29, caloriesPerUnit: 135 }
     ]
   },
   {
-    id: 'bread-sliced-integral',
-    name: 'Pão de Forma Integral',
-    category: 'Pães e Farináceos',
-    variations: [
-      { label: '1 fatia (25g)', carbsPerUnit: 8, caloriesPerUnit: 68 }
-    ]
-  },
-  {
-    id: 'tapioca',
+    id: 'tapioca-flour',
     name: 'Tapioca (Goma)',
     category: 'Pães e Farináceos',
     variations: [
-      { label: '1 colher de sopa cheia (17g)', carbsPerUnit: 10, caloriesPerUnit: 37 },
-      { label: '1 unidade média (80g)', carbsPerUnit: 50, caloriesPerUnit: 282 }
+      { label: '1 colher de sopa (16g)', carbsPerUnit: 14, caloriesPerUnit: 57 },
+      { label: '1 unidade pequena (80g)', carbsPerUnit: 50, caloriesPerUnit: 282 }
     ]
   },
   {
@@ -113,50 +85,25 @@ export const FOOD_DATABASE: FoodItem[] = [
     name: 'Cuscuz de Milho',
     category: 'Pães e Farináceos',
     variations: [
-      { label: '1 pedaço médio (135g)', carbsPerUnit: 34, caloriesPerUnit: 152 },
-      { label: '1 pedaço pequeno (85g)', carbsPerUnit: 21, caloriesPerUnit: 96 }
+      { label: '1 pedaço médio (135g)', carbsPerUnit: 34, caloriesPerUnit: 152 }
     ]
   },
   {
-    id: 'biscuit-cracker',
-    name: 'Biscoito Cream Cracker',
+    id: 'pao-queijo',
+    name: 'Pão de Queijo',
     category: 'Pães e Farináceos',
     variations: [
-      { label: '1 unidade (5g)', carbsPerUnit: 4, caloriesPerUnit: 22 }
-    ]
-  },
-  {
-    id: 'flour-cassava',
-    name: 'Farinha de Mandioca',
-    category: 'Pães e Farináceos',
-    variations: [
-      { label: '1 colher de sopa cheia (16g)', carbsPerUnit: 14, caloriesPerUnit: 57 }
-    ]
-  },
-  {
-    id: 'pasta-cooked',
-    name: 'Macarrão Cozido (sem molho)',
-    category: 'Pães e Farináceos',
-    variations: [
-      { label: '1 escumadeira cheia (110g)', carbsPerUnit: 30, caloriesPerUnit: 138 }
+      { label: '1 unidade tradicional (25g)', carbsPerUnit: 11, caloriesPerUnit: 109 }
     ]
   },
 
-  // --- FRUTAS ---
+  // --- FRUTAS (SBD pág. 49-56, 111-113) ---
   {
-    id: 'avocado',
-    name: 'Abacate',
+    id: 'acai-pure',
+    name: 'Açaí (Polpa natural)',
     category: 'Frutas',
     variations: [
-      { label: '1 fatia (90g)', carbsPerUnit: 5, caloriesPerUnit: 86 }
-    ]
-  },
-  {
-    id: 'pineapple',
-    name: 'Abacaxi',
-    category: 'Frutas',
-    variations: [
-      { label: '1 fatia média (75g)', carbsPerUnit: 10, caloriesPerUnit: 44 }
+      { label: '1 copo pequeno (150g)', carbsPerUnit: 55, caloriesPerUnit: 220 }
     ]
   },
   {
@@ -164,24 +111,7 @@ export const FOOD_DATABASE: FoodItem[] = [
     name: 'Banana Prata',
     category: 'Frutas',
     variations: [
-      { label: '1 unidade média (55g)', carbsPerUnit: 14, caloriesPerUnit: 54 },
-      { label: '1 unidade pequena (40g)', carbsPerUnit: 10, caloriesPerUnit: 39 }
-    ]
-  },
-  {
-    id: 'banana-caturra',
-    name: 'Banana Caturra (Nanica)',
-    category: 'Frutas',
-    variations: [
-      { label: '1 unidade média (86g)', carbsPerUnit: 20, caloriesPerUnit: 79 }
-    ]
-  },
-  {
-    id: 'orange-lima',
-    name: 'Laranja Lima',
-    category: 'Frutas',
-    variations: [
-      { label: '1 unidade média (180g)', carbsPerUnit: 20, caloriesPerUnit: 82 }
+      { label: '1 unidade média (55g)', carbsPerUnit: 14, caloriesPerUnit: 54 }
     ]
   },
   {
@@ -193,76 +123,34 @@ export const FOOD_DATABASE: FoodItem[] = [
     ]
   },
   {
-    id: 'papaya',
-    name: 'Mamão Papaia',
+    id: 'papaya-formosa',
+    name: 'Mamão Formosa',
     category: 'Frutas',
     variations: [
-      { label: '1/2 unidade (160g)', carbsPerUnit: 16, caloriesPerUnit: 68 },
-      { label: '1 fatia média (100g)', carbsPerUnit: 10, caloriesPerUnit: 43 }
+      { label: '1 fatia média (100g)', carbsPerUnit: 12, caloriesPerUnit: 47 }
     ]
   },
   {
-    id: 'watermelon',
-    name: 'Melancia',
+    id: 'orange-lima',
+    name: 'Laranja Lima',
     category: 'Frutas',
     variations: [
-      { label: '1 fatia média (200g)', carbsPerUnit: 13, caloriesPerUnit: 58 }
-    ]
-  },
-  {
-    id: 'strawberry',
-    name: 'Morango',
-    category: 'Frutas',
-    variations: [
-      { label: '1 unidade (12g)', carbsPerUnit: 1, caloriesPerUnit: 4 },
-      { label: '1 xícara (123g)', carbsPerUnit: 15, caloriesPerUnit: 64 }
-    ]
-  },
-  {
-    id: 'grape-niagara',
-    name: 'Uva Niágara',
-    category: 'Frutas',
-    variations: [
-      { label: '1 cacho pequeno (100g)', carbsPerUnit: 17, caloriesPerUnit: 68 }
-    ]
-  },
-  {
-    id: 'mango-palmer',
-    name: 'Manga Palmer',
-    category: 'Frutas',
-    variations: [
-      { label: '1 porção média (100g)', carbsPerUnit: 19, caloriesPerUnit: 77 }
+      { label: '1 unidade média (180g)', carbsPerUnit: 20, caloriesPerUnit: 82 }
     ]
   },
 
-  // --- VEGETAIS E RAÍZES ---
+  // --- VEGETAIS E RAÍZES (SBD pág. 61, 113-114, 121) ---
   {
-    id: 'lettuce',
-    name: 'Alface (todos os tipos)',
+    id: 'cassava-boiled',
+    name: 'Mandioca (Aipim) Cozida',
     category: 'Vegetais e Raízes',
     variations: [
-      { label: '1 folha média (10g)', carbsPerUnit: 0, caloriesPerUnit: 1 }
+      { label: '1 pedaço médio (60g)', carbsPerUnit: 18, caloriesPerUnit: 75 },
+      { label: '1 colher de sopa (20g)', carbsPerUnit: 6, caloriesPerUnit: 25 }
     ]
   },
   {
-    id: 'pumpkin',
-    name: 'Abóbora Cozida',
-    category: 'Vegetais e Raízes',
-    variations: [
-      { label: '1 colher de sopa (36g)', carbsPerUnit: 3, caloriesPerUnit: 14 }
-    ]
-  },
-  {
-    id: 'potato-english-boiled',
-    name: 'Batata Inglesa Cozida',
-    category: 'Vegetais e Raízes',
-    variations: [
-      { label: '1 colher de sopa cheia (30g)', carbsPerUnit: 6, caloriesPerUnit: 26 },
-      { label: '1 unidade média (150g)', carbsPerUnit: 30, caloriesPerUnit: 130 }
-    ]
-  },
-  {
-    id: 'potato-sweet-boiled',
+    id: 'sweet-potato-boiled',
     name: 'Batata Doce Cozida',
     category: 'Vegetais e Raízes',
     variations: [
@@ -270,15 +158,15 @@ export const FOOD_DATABASE: FoodItem[] = [
     ]
   },
   {
-    id: 'beet-cooked',
-    name: 'Beterraba Cozida',
+    id: 'potato-english-boiled',
+    name: 'Batata Inglesa Cozida',
     category: 'Vegetais e Raízes',
     variations: [
-      { label: '1 colher de sopa cheia (20g)', carbsPerUnit: 2, caloriesPerUnit: 9 }
+      { label: '1 colher de sopa cheia (30g)', carbsPerUnit: 6, caloriesPerUnit: 26 }
     ]
   },
   {
-    id: 'carrot-cooked',
+    id: 'carrot-boiled',
     name: 'Cenoura Cozida',
     category: 'Vegetais e Raízes',
     variations: [
@@ -286,46 +174,21 @@ export const FOOD_DATABASE: FoodItem[] = [
     ]
   },
   {
-    id: 'kale-sauteed',
-    name: 'Couve Manteiga Refogada',
+    id: 'beet-boiled',
+    name: 'Beterraba Cozida',
     category: 'Vegetais e Raízes',
     variations: [
-      { label: '1 colher de sopa (20g)', carbsPerUnit: 1, caloriesPerUnit: 18 }
-    ]
-  },
-  {
-    id: 'cassava-boiled',
-    name: 'Mandioca (Aipim) Cozida',
-    category: 'Vegetais e Raízes',
-    variations: [
-      { label: '1 pedaço médio (60g)', carbsPerUnit: 18, caloriesPerUnit: 75 },
-      { label: '1 pedaço grande (100g)', carbsPerUnit: 30, caloriesPerUnit: 125 }
-    ]
-  },
-  {
-    id: 'tomato',
-    name: 'Tomate',
-    category: 'Vegetais e Raízes',
-    variations: [
-      { label: '1 unidade pequena (50g)', carbsPerUnit: 2, caloriesPerUnit: 10 }
+      { label: '1 colher de sopa cheia (20g)', carbsPerUnit: 2, caloriesPerUnit: 9 }
     ]
   },
 
-  // --- LATICÍNIOS ---
+  // --- LATICÍNIOS (SBD pág. 110, 134-135) ---
   {
     id: 'milk-whole',
     name: 'Leite Integral',
     category: 'Laticínios',
     variations: [
       { label: '1 copo (200ml)', carbsPerUnit: 10, caloriesPerUnit: 120 }
-    ]
-  },
-  {
-    id: 'milk-skimmed',
-    name: 'Leite Desnatado',
-    category: 'Laticínios',
-    variations: [
-      { label: '1 copo (200ml)', carbsPerUnit: 10, caloriesPerUnit: 70 }
     ]
   },
   {
@@ -344,39 +207,30 @@ export const FOOD_DATABASE: FoodItem[] = [
       { label: '1 fatia média (30g)', carbsPerUnit: 1, caloriesPerUnit: 73 }
     ]
   },
-  {
-    id: 'cheese-mozzarella',
-    name: 'Queijo Muçarela',
-    category: 'Laticínios',
-    variations: [
-      { label: '1 fatia fina (20g)', carbsPerUnit: 0, caloriesPerUnit: 65 }
-    ]
-  },
-  {
-    id: 'requeijao',
-    name: 'Requeijão Comum',
-    category: 'Laticínios',
-    variations: [
-      { label: '1 colher de sopa cheia (30g)', carbsPerUnit: 1, caloriesPerUnit: 106 }
-    ]
-  },
 
-  // --- PROTEÍNAS (CARNES E OVOS) ---
+  // --- PROTEÍNAS (CARNES VERMELHAS, BRANCAS E PEIXES) (SBD pág. 72-73, 111, 139) ---
   {
     id: 'beef-grilled',
     name: 'Carne Bovina Grelhada (Média)',
     category: 'Proteínas',
     variations: [
-      { label: '1 bife médio (100g)', carbsPerUnit: 0, caloriesPerUnit: 228 },
-      { label: '1 colher de sopa picada (25g)', carbsPerUnit: 0, caloriesPerUnit: 57 }
+      { label: '1 bife médio (100g)', carbsPerUnit: 0, caloriesPerUnit: 228 }
     ]
   },
   {
-    id: 'chicken-breast',
-    name: 'Frango (Peito Grelhado)',
+    id: 'chicken-grilled',
+    name: 'Filé de Frango Grelhado',
     category: 'Proteínas',
     variations: [
       { label: '1 filé pequeno (100g)', carbsPerUnit: 0, caloriesPerUnit: 163 }
+    ]
+  },
+  {
+    id: 'fish-hake-boiled',
+    name: 'Peixe (Abadejo/Tilápia) Assado',
+    category: 'Proteínas',
+    variations: [
+      { label: '1 filé médio (100g)', carbsPerUnit: 0, caloriesPerUnit: 112 }
     ]
   },
   {
@@ -388,33 +242,17 @@ export const FOOD_DATABASE: FoodItem[] = [
     ]
   },
   {
-    id: 'fish-hake',
-    name: 'Peixe (Abadejo/Tilápia) Assado',
+    id: 'liver-grilled',
+    name: 'Fígado de Boi Grelhado',
     category: 'Proteínas',
     variations: [
-      { label: '1 filé médio (100g)', carbsPerUnit: 0, caloriesPerUnit: 112 }
-    ]
-  },
-  {
-    id: 'sardine-canned',
-    name: 'Sardinha em Óleo',
-    category: 'Proteínas',
-    variations: [
-      { label: '1 unidade média (41g)', carbsPerUnit: 0, caloriesPerUnit: 116 }
-    ]
-  },
-  {
-    id: 'pork-steak',
-    name: 'Carne de Porco (Bisteca)',
-    category: 'Proteínas',
-    variations: [
-      { label: '1 filé médio (100g)', carbsPerUnit: 0, caloriesPerUnit: 280 }
+      { label: '1 bife médio (110g)', carbsPerUnit: 5, caloriesPerUnit: 239 }
     ]
   },
 
-  // --- BEBIDAS ---
+  // --- BEBIDAS (CAFÉS, SUCOS, CHÁS) (SBD pág. 110, 146-147) ---
   {
-    id: 'coffee-sugar',
+    id: 'coffee-with-sugar',
     name: 'Café Coado com Açúcar',
     category: 'Bebidas',
     variations: [
@@ -443,7 +281,15 @@ export const FOOD_DATABASE: FoodItem[] = [
     name: 'Suco de Uva Integral',
     category: 'Bebidas',
     variations: [
-      { label: '1 copo duplo cheio (240ml)', carbsPerUnit: 35, caloriesPerUnit: 146 }
+      { label: '1 copo duplo (240ml)', carbsPerUnit: 35, caloriesPerUnit: 146 }
+    ]
+  },
+  {
+    id: 'tea-mate-sugar',
+    name: 'Chá Mate com Açúcar',
+    category: 'Bebidas',
+    variations: [
+      { label: '1 xícara de chá (200ml)', carbsPerUnit: 16, caloriesPerUnit: 64 }
     ]
   },
   {
@@ -452,14 +298,6 @@ export const FOOD_DATABASE: FoodItem[] = [
     category: 'Bebidas',
     variations: [
       { label: '1 copo (200ml)', carbsPerUnit: 11, caloriesPerUnit: 44 }
-    ]
-  },
-  {
-    id: 'tea-mate-sweet',
-    name: 'Chá Mate com Açúcar',
-    category: 'Bebidas',
-    variations: [
-      { label: '1 xícara de chá (200ml)', carbsPerUnit: 16, caloriesPerUnit: 64 }
     ]
   }
 ];

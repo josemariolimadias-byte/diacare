@@ -5,9 +5,10 @@ import { AuthUser } from '../types';
 
 interface AuthProps {
   onLogin: (user: AuthUser) => void;
+  onBack: () => void;
 }
 
-const Auth: React.FC<AuthProps> = ({ onLogin }) => {
+const Auth: React.FC<AuthProps> = ({ onLogin, onBack }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,25 +23,28 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
     try {
       let user;
       if (isLogin) {
-        console.log("Tentando login com:", email);
         user = await StorageService.login(email, password);
       } else {
-        console.log("Tentando cadastro com:", email);
         user = await StorageService.signup(email, password);
       }
-      console.log("Sucesso! Usuário retornado:", user);
       onLogin(user);
     } catch (err: any) {
       console.error("ERRO NA AUTENTICAÇÃO:", err);
-      // Se o erro for do Supabase, ele terá uma mensagem clara
-      setError(err.message || 'Ocorreu um erro inesperado. Verifique o console.');
+      setError(err.message || 'Ocorreu um erro inesperado.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-blue-700 flex items-center justify-center p-4 font-['Inter']">
+    <div className="min-h-screen bg-blue-700 flex flex-col items-center justify-center p-4 font-['Inter'] relative">
+      <button 
+        onClick={onBack}
+        className="absolute top-8 left-8 text-white/60 hover:text-white font-black text-xs uppercase tracking-widest transition-colors flex items-center gap-2"
+      >
+        ← Voltar ao Início
+      </button>
+
       <div className="max-w-md w-full bg-white p-10 rounded-[2.5rem] shadow-2xl border border-white/20 animate-in fade-in zoom-in duration-500">
         <div className="flex flex-col items-center mb-10">
           <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-blue-200 mb-4">D</div>

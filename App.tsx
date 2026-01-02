@@ -8,6 +8,7 @@ import LogForm from './components/LogForm';
 import SettingsPage from './components/SettingsPage';
 import Onboarding from './components/Onboarding';
 import Auth from './components/Auth';
+import LandingPage from './components/LandingPage';
 
 const NavItem: React.FC<{ active: boolean; onClick: () => void; icon: string; label: string }> = ({ active, onClick, icon, label }) => (
   <button
@@ -23,6 +24,7 @@ const NavItem: React.FC<{ active: boolean; onClick: () => void; icon: string; la
 );
 
 const App: React.FC = () => {
+  const [showSystem, setShowSystem] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -31,11 +33,11 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'logs' | 'settings'>('dashboard');
   const [editingLog, setEditingLog] = useState<LogEntry | null>(null);
 
-  // Listener de Autenticação do Supabase
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setAuthUser({ id: session.user.id, email: session.user.email! });
+        setShowSystem(true);
       } else {
         setLoading(false);
       }
@@ -44,6 +46,7 @@ const App: React.FC = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setAuthUser({ id: session.user.id, email: session.user.email! });
+        setShowSystem(true);
       } else {
         setAuthUser(null);
         setUserProfile(null);
@@ -54,7 +57,6 @@ const App: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Busca de dados quando o usuário loga
   useEffect(() => {
     const fetchData = async () => {
       if (authUser) {
@@ -74,6 +76,10 @@ const App: React.FC = () => {
     fetchData();
   }, [authUser]);
 
+  if (!showSystem && !authUser) {
+    return <LandingPage onEnterSystem={() => setShowSystem(true)} />;
+  }
+
   if (loading && !authUser) {
     return (
       <div className="min-h-screen bg-blue-700 flex items-center justify-center">
@@ -83,7 +89,7 @@ const App: React.FC = () => {
   }
 
   if (!authUser) {
-    return <Auth onLogin={setAuthUser} />;
+    return <Auth onLogin={setAuthUser} onBack={() => setShowSystem(false)} />;
   }
 
   if (loading) {
@@ -100,12 +106,7 @@ const App: React.FC = () => {
       setUserProfile(p);
     } catch (err: any) {
       console.error("Erro ao salvar perfil:", err);
-      const msg = err.message || "";
-      if (msg.includes("row-level security")) {
-        alert("Erro de Permissão (RLS): O banco de dados do Supabase está bloqueando a criação do perfil. Certifique-se de que a política RLS da tabela 'profiles' permite INSERT para usuários autenticados.");
-      } else {
-        alert("Não foi possível salvar seu perfil: " + msg);
-      }
+      alert("Não foi possível salvar seu perfil.");
     }
   };
 
@@ -116,6 +117,7 @@ const App: React.FC = () => {
   const handleLogout = async () => {
     if (window.confirm('Deseja realmente sair?')) {
       await StorageService.logout();
+      setShowSystem(false);
     }
   };
 
@@ -133,7 +135,7 @@ const App: React.FC = () => {
       setActiveTab('dashboard');
       setEditingLog(null);
     } catch (err) {
-      alert("Erro ao salvar log. Verifique se as políticas RLS da tabela 'logs' permitem a inserção.");
+      alert("Erro ao salvar registro.");
     }
   };
 
@@ -167,10 +169,10 @@ const App: React.FC = () => {
     <div className="min-h-screen pb-24 md:pb-12 md:pl-64 bg-slate-50 flex flex-col items-stretch font-['Inter'] relative">
       <nav className="fixed bottom-0 left-0 w-full bg-blue-700 border-t border-blue-600/50 z-50 md:top-0 md:bottom-auto md:w-64 md:h-full md:border-t-0 md:border-r flex md:flex-col shadow-2xl md:shadow-none transition-colors duration-300">
         <div className="hidden md:flex flex-col p-8 border-b border-blue-600/30 mb-4 gap-6">
-          <div className="flex items-center gap-3">
+          <button onClick={() => setShowSystem(false)} className="flex items-center gap-3 text-left">
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-blue-700 font-black text-sm shadow-xl">D</div>
             <span className="text-xl font-black text-white tracking-tight">DiaCare</span>
-          </div>
+          </button>
           <div className="bg-blue-800/40 rounded-2xl p-4 border border-white/5 flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-black text-sm border-2 border-blue-400 shrink-0 shadow-lg">
               {userProfile.fullName.charAt(0).toUpperCase()}
@@ -185,10 +187,6 @@ const App: React.FC = () => {
           <NavItem active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon="📊" label="Início" />
           <NavItem active={activeTab === 'logs'} onClick={handleNewLog} icon="📝" label="Registrar" />
           <NavItem active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} icon="⚙️" label="Ajustes" />
-          <button onClick={handleLogout} className="flex flex-col md:hidden items-center gap-1 py-3.5 px-3.5 rounded-2xl text-red-200 hover:bg-red-50/10 font-medium">
-            <span className="text-xl">🚪</span>
-            <span className="text-[10px] uppercase tracking-widest">Sair</span>
-          </button>
         </div>
         <div className="hidden md:block p-6 mt-2 border-t border-blue-600/30">
           <button onClick={handleLogout} className="flex items-center gap-4 py-4 px-5 rounded-2xl transition-all w-full group text-blue-100 hover:bg-red-500/20 hover:text-red-200">

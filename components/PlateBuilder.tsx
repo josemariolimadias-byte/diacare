@@ -43,7 +43,6 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume, onCancel }) => {
     return list.sort((a, b) => a.name.localeCompare(b.name));
   }, [selectedCategory, searchTerm]);
 
-  // Enhanced AI prompt to follow SBD standards
   const handleAiSearch = async () => {
     if (!searchTerm.trim()) return;
     
@@ -76,15 +75,22 @@ const PlateBuilder: React.FC<PlateBuilderProps> = ({ onConsume, onCancel }) => {
       
       const text = response.text || "{}";
       const result = JSON.parse(text);
-      const newItem: PlateItem = {
-        foodId: 'ai-' + Date.now(),
-        foodName: result.name || searchTerm,
-        variationLabel: result.portion || '100g',
-        quantity: 1,
-        totalCarbs: result.carbs || 0,
-        totalCalories: result.calories || 0
+      
+      // Instead of adding directly to plate, we create a temporary FoodItem
+      // and set it as activeFood so the user can choose quantity
+      const aiFood: FoodItem = {
+        id: 'ai-' + Date.now(),
+        name: `✨ ${result.name || searchTerm}`,
+        category: 'Busca IA',
+        variations: [{
+          label: result.portion || 'Porção informada',
+          carbsPerUnit: result.carbs || 0,
+          caloriesPerUnit: result.calories || 0
+        }]
       };
-      setPlate([...plate, newItem]);
+
+      setIsOtherMode(false);
+      setActiveFood(aiFood);
       setSearchTerm('');
     } catch (err) {
       console.error("Gemini AI error:", err);

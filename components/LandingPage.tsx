@@ -1,49 +1,24 @@
 
 import React from 'react';
+import PublicHeader from './PublicHeader';
+import PublicFooter from './PublicFooter';
 
 interface LandingPageProps {
   onEnterSystem: () => void;
   onContactClick: () => void;
   onPrivacyClick: () => void;
   onTermsClick: () => void;
+  onHomeClick: () => void;
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem, onContactClick, onPrivacyClick, onTermsClick }) => {
-  const apiKey = process.env.API_KEY || '';
-  const lastFourDigits = apiKey.slice(-4);
-  const isApiConnected = apiKey.length > 0;
-
+const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem, onContactClick, onPrivacyClick, onTermsClick, onHomeClick }) => {
   return (
     <div className="min-h-screen bg-white font-['Inter'] selection:bg-blue-100 selection:text-blue-700">
-      {/* SEÇÃO 1: CABEÇALHO COM MENU */}
-      <header className="fixed top-0 left-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-200">D</div>
-            <span className="text-2xl font-black text-slate-800 tracking-tight">DiaCare</span>
-          </div>
-          
-          <nav className="hidden md:flex items-center gap-8">
-            <a href="#inicio" className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest">Início</a>
-            <a href="#sobre" className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest">Sobre</a>
-            <a href="#recursos" className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest">Recursos</a>
-            <button 
-              onClick={onContactClick}
-              className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest"
-            >
-              Contato
-            </button>
-            <button 
-              onClick={onEnterSystem}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-100"
-            >
-              Acessar Sistema
-            </button>
-          </nav>
-          
-          <button onClick={onEnterSystem} className="md:hidden text-2xl">☰</button>
-        </div>
-      </header>
+      <PublicHeader 
+        onHome={onHomeClick} 
+        onContact={onContactClick} 
+        onEnterSystem={onEnterSystem} 
+      />
 
       {/* SEÇÃO 2: SEÇÃO PRINCIPAL (HERO) */}
       <section id="inicio" className="pt-40 pb-24 px-6">
@@ -144,69 +119,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem, onContactClick
         </div>
       </section>
 
-      {/* SEÇÃO 4: RODAPÉ */}
-      <footer className="bg-slate-900 text-white py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 border-b border-white/10 pb-12">
-            <div className="space-y-6">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-sm">D</div>
-                <span className="text-xl font-black tracking-tight">DiaCare</span>
-              </div>
-              <p className="text-slate-400 text-sm font-medium leading-relaxed">
-                Cuidando de você através da tecnologia e precisão clínica.
-              </p>
-              
-              {/* API Status Indicator */}
-              {isApiConnected && (
-                <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2.5 rounded-2xl">
-                  <div className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400 leading-none">API CONECTADA</span>
-                    <span className="text-[9px] font-bold text-slate-500 mt-0.5 tracking-tighter">GEMINI ACTIVE ••••{lastFourDigits}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            <div>
-              <h4 className="text-xs font-black uppercase tracking-widest text-blue-400 mb-6">Plataforma</h4>
-              <ul className="space-y-4 text-sm font-bold text-slate-300">
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Sistema Web</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">App Mobile</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">SBD Integration</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-xs font-black uppercase tracking-widest text-blue-400 mb-6">Suporte</h4>
-              <ul className="space-y-4 text-sm font-bold text-slate-300">
-                <li><a href="https://drive.google.com/file/d/1tpt88R8JPdgY1_bZ-gIr4xskleOXWvLY/view?usp=drive_link" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Manual SBD</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Contagem CHO</a></li>
-                <li><button onClick={onContactClick} className="hover:text-blue-400 transition-colors text-left">Contato</button></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-xs font-black uppercase tracking-widest text-blue-400 mb-6">Legal</h4>
-              <ul className="space-y-4 text-sm font-bold text-slate-300">
-                <li><button onClick={onPrivacyClick} className="hover:text-blue-400 transition-colors text-left">Privacidade</button></li>
-                <li><button onClick={onTermsClick} className="hover:text-blue-400 transition-colors text-left">Termos de Uso</button></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-500">
-            <span>© 2026 DiaCare. Todos os direitos reservados.</span>
-            <div className="flex gap-6">
-              <a href="https://www.instagram.com/diabetesbrasil2025" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <PublicFooter 
+        onContact={onContactClick} 
+        onPrivacy={onPrivacyClick} 
+        onTerms={onTermsClick} 
+      />
     </div>
   );
 };

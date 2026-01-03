@@ -93,18 +93,45 @@ const App: React.FC = () => {
     setShowTerms(false);
   };
 
+  const handleEnterSystem = () => {
+    resetPublicNav();
+    setShowSystem(true);
+  };
+
   // Seção Pública (Landing ou Páginas Legais/Contato)
   if (!showSystem && !authUser) {
-    if (showContact) return <ContactPage onBack={resetPublicNav} />;
-    if (showPrivacy) return <PrivacyPage onBack={resetPublicNav} />;
-    if (showTerms) return <TermsPage onBack={resetPublicNav} />;
+    if (showContact) return (
+      <ContactPage 
+        onBack={resetPublicNav} 
+        onEnterSystem={handleEnterSystem}
+        onPrivacyClick={() => { resetPublicNav(); setShowPrivacy(true); }}
+        onTermsClick={() => { resetPublicNav(); setShowTerms(true); }}
+      />
+    );
+    if (showPrivacy) return (
+      <PrivacyPage 
+        onBack={resetPublicNav} 
+        onEnterSystem={handleEnterSystem}
+        onContactClick={() => { resetPublicNav(); setShowContact(true); }}
+        onTermsClick={() => { resetPublicNav(); setShowTerms(true); }}
+      />
+    );
+    if (showTerms) return (
+      <TermsPage 
+        onBack={resetPublicNav} 
+        onEnterSystem={handleEnterSystem}
+        onContactClick={() => { resetPublicNav(); setShowContact(true); }}
+        onPrivacyClick={() => { resetPublicNav(); setShowPrivacy(true); }}
+      />
+    );
     
     return (
       <LandingPage 
-        onEnterSystem={() => setShowSystem(true)} 
+        onEnterSystem={handleEnterSystem} 
         onContactClick={() => setShowContact(true)}
         onPrivacyClick={() => setShowPrivacy(true)}
         onTermsClick={() => setShowTerms(true)}
+        onHomeClick={resetPublicNav}
       />
     );
   }

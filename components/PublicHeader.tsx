@@ -8,6 +8,12 @@ interface PublicHeaderProps {
 }
 
 const PublicHeader: React.FC<PublicHeaderProps> = ({ onHome, onContact, onEnterSystem }) => {
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
+    // Se estivermos em uma subpágina (Contato, Privacidade, etc), voltamos para a Home primeiro
+    onHome();
+    // O navegador tentará seguir o link da âncora naturalmente após o re-render da LandingPage
+  };
+
   return (
     <header className="fixed top-0 left-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -17,9 +23,27 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ onHome, onContact, onEnterS
         </div>
         
         <nav className="hidden md:flex items-center gap-8">
-          <button onClick={onHome} className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest">Início</button>
-          <button onClick={onHome} className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest">Sobre</button>
-          <button onClick={onHome} className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest">Recursos</button>
+          <a 
+            href="#inicio" 
+            onClick={(e) => handleNavClick(e, 'inicio')}
+            className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest"
+          >
+            Início
+          </a>
+          <a 
+            href="#sobre" 
+            onClick={(e) => handleNavClick(e, 'sobre')}
+            className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest"
+          >
+            Sobre
+          </a>
+          <a 
+            href="#recursos" 
+            onClick={(e) => handleNavClick(e, 'recursos')}
+            className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest"
+          >
+            Recursos
+          </a>
           <button 
             onClick={onContact}
             className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest"

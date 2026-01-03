@@ -73,7 +73,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ onHome, onContact, onEnterS
         </button>
       </div>
 
-      {/* Mobile Menu Overlay - Fundo Branco Sólido */}
+      {/* Mobile Menu Overlay - Corrigido para ocupar o espaço correto e mostrar todos os itens */}
       <div 
         className={`fixed inset-0 top-20 bg-white z-40 md:hidden transition-all duration-300 ease-in-out ${
           isMenuOpen 
@@ -81,25 +81,26 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ onHome, onContact, onEnterS
             : 'opacity-0 invisible -translate-y-2 pointer-events-none'
         }`}
       >
-        <div className="flex flex-col p-8 gap-6 bg-white h-full border-t border-slate-100 overflow-y-auto">
+        <div className="flex flex-col p-8 gap-2 bg-white h-full border-t border-slate-100 overflow-y-auto pb-32">
           {navLinks.map((link) => (
             <a 
               key={link.href}
               href={link.href} 
               onClick={(e) => handleNavClick(e, link.href)}
-              className="text-2xl font-black text-slate-800 hover:text-blue-600 transition-colors uppercase tracking-tight py-2 border-b border-slate-50"
+              className="text-2xl font-black text-slate-800 hover:text-blue-600 transition-colors uppercase tracking-tight py-4 border-b border-slate-50 block"
             >
               {link.label}
             </a>
           ))}
+          
           <button 
             onClick={() => { onContact(); setIsMenuOpen(false); }}
-            className="text-left text-2xl font-black text-slate-800 hover:text-blue-600 transition-colors uppercase tracking-tight py-2 border-b border-slate-50"
+            className="text-left text-2xl font-black text-slate-800 hover:text-blue-600 transition-colors uppercase tracking-tight py-4 border-b border-slate-50 block w-full"
           >
             Contato
           </button>
           
-          <div className="mt-4 pt-4">
+          <div className="mt-8">
             <button 
               onClick={() => { onEnterSystem(); setIsMenuOpen(false); }}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-2xl text-sm font-black uppercase tracking-widest transition-all shadow-xl shadow-blue-100"
@@ -108,7 +109,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ onHome, onContact, onEnterS
             </button>
           </div>
           
-          <div className="mt-auto text-center pb-12">
+          <div className="mt-12 text-center">
             <div className="flex justify-center gap-4 mb-4">
                <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 font-black text-xs">D</div>
             </div>

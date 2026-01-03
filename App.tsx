@@ -26,6 +26,37 @@ const NavItem: React.FC<{ active: boolean; onClick: () => void; icon: string; la
   </button>
 );
 
+const TrialExpiredScreen: React.FC<{ onLogout: () => void }> = ({ onLogout }) => (
+  <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-['Inter']">
+    <div className="max-w-md w-full bg-white p-10 rounded-[3rem] shadow-2xl shadow-blue-100 border border-slate-100 text-center animate-in fade-in zoom-in duration-500">
+      <div className="w-20 h-20 bg-orange-100 text-orange-600 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-8 shadow-inner">⚠️</div>
+      <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">Período de Testes Encerrado</h2>
+      <p className="text-slate-500 font-medium leading-relaxed mb-10">
+        Seus 30 dias de uso gratuito chegaram ao fim. Para continuar registrando sua glicemia e utilizando nossa IA, assine o <strong>Plano Controle</strong>.
+      </p>
+      
+      <div className="space-y-4">
+        <a 
+          href="https://wa.me/5571999560936?text=Olá,%20meu%20período%20de%20testes%20no%20DiaCare%20venceu.%20Gostaria%20de%20assinar%20o%20Plano%20Controle."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full py-5 bg-blue-600 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 transform active:scale-95"
+        >
+          Assinar Plano Controle
+        </a>
+        <button 
+          onClick={onLogout}
+          className="w-full py-5 bg-slate-100 text-slate-500 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
+        >
+          Sair da Conta
+        </button>
+      </div>
+      
+      <p className="mt-8 text-[10px] font-black text-slate-300 uppercase tracking-widest">Equipe DiaCare</p>
+    </div>
+  </div>
+);
+
 const App: React.FC = () => {
   const [showSystem, setShowSystem] = useState(false);
   const [showContact, setShowContact] = useState(false);
@@ -98,6 +129,18 @@ const App: React.FC = () => {
     setShowSystem(true);
   };
 
+  // Lógica de expiração de Trial
+  const isTrialExpired = (expiryDate?: string) => {
+    if (!expiryDate) return false; // Se não houver data, permite acesso (ex: admin removeu a data)
+    const expiry = new Date(expiryDate);
+    const now = new Date();
+    // Normaliza para comparar apenas as datas (ignorando horas)
+    expiry.setHours(23, 59, 59, 999);
+    return now > expiry;
+  };
+
+  const trialExpired = userProfile ? isTrialExpired(userProfile.trialExpiresAt) : false;
+
   // Seção Pública (Landing ou Páginas Legais/Contato)
   if (!showSystem && !authUser) {
     if (showContact) return (
@@ -156,10 +199,31 @@ const App: React.FC = () => {
     );
   }
 
+  const handleLogout = async () => {
+    if (window.confirm('Deseja realmente sair?')) {
+      await StorageService.logout();
+      setShowSystem(false);
+      resetPublicNav();
+    }
+  };
+
+  // Caso o trial tenha expirado, mostra tela de bloqueio antes do Onboarding ou Dashboard
+  if (trialExpired) {
+    return <TrialExpiredScreen onLogout={handleLogout} />;
+  }
+
   const handleOnboardingComplete = async (p: UserProfile) => {
     try {
-      await StorageService.saveProfile(p);
-      setUserProfile(p);
+      // Define a data de expiração para 30 dias a partir de hoje no primeiro cadastro
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + 30);
+      const profileWithExpiry = { 
+        ...p, 
+        trialExpiresAt: expiryDate.toISOString().split('T')[0] 
+      };
+      
+      await StorageService.saveProfile(profileWithExpiry);
+      setUserProfile(profileWithExpiry);
     } catch (err: any) {
       console.error("Erro ao salvar perfil:", err);
       alert("Não foi possível salvar seu perfil.");
@@ -169,14 +233,6 @@ const App: React.FC = () => {
   if (!userProfile) {
     return <Onboarding authUser={authUser} onComplete={handleOnboardingComplete} />;
   }
-
-  const handleLogout = async () => {
-    if (window.confirm('Deseja realmente sair?')) {
-      await StorageService.logout();
-      setShowSystem(false);
-      resetPublicNav();
-    }
-  };
 
   const saveLog = async (entry: LogEntry) => {
     try {

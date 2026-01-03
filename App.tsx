@@ -129,19 +129,24 @@ const App: React.FC = () => {
     setShowSystem(true);
   };
 
-  // Lógica de expiração de Trial
   const isTrialExpired = (expiryDate?: string) => {
-    if (!expiryDate) return false; // Se não houver data, permite acesso (ex: admin removeu a data)
+    if (!expiryDate) return false;
     const expiry = new Date(expiryDate);
     const now = new Date();
-    // Normaliza para comparar apenas as datas (ignorando horas)
     expiry.setHours(23, 59, 59, 999);
     return now > expiry;
   };
 
   const trialExpired = userProfile ? isTrialExpired(userProfile.trialExpiresAt) : false;
 
-  // Seção Pública (Landing ou Páginas Legais/Contato)
+  const handleLogout = async () => {
+    if (window.confirm('Deseja realmente sair?')) {
+      await StorageService.logout();
+      setShowSystem(false);
+      resetPublicNav();
+    }
+  };
+
   if (!showSystem && !authUser) {
     if (showContact) return (
       <ContactPage 
@@ -199,22 +204,12 @@ const App: React.FC = () => {
     );
   }
 
-  const handleLogout = async () => {
-    if (window.confirm('Deseja realmente sair?')) {
-      await StorageService.logout();
-      setShowSystem(false);
-      resetPublicNav();
-    }
-  };
-
-  // Caso o trial tenha expirado, mostra tela de bloqueio antes do Onboarding ou Dashboard
   if (trialExpired) {
     return <TrialExpiredScreen onLogout={handleLogout} />;
   }
 
   const handleOnboardingComplete = async (p: UserProfile) => {
     try {
-      // Define a data de expiração para 30 dias a partir de hoje no primeiro cadastro
       const expiryDate = new Date();
       expiryDate.setDate(expiryDate.getDate() + 30);
       const profileWithExpiry = { 
@@ -280,6 +275,22 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen pb-24 md:pb-12 md:pl-64 bg-slate-50 flex flex-col items-stretch font-['Inter'] relative">
+      
+      {/* Mobile Top Header for Logout/Home Access */}
+      <header className="md:hidden fixed top-0 left-0 w-full h-16 bg-blue-700 z-50 flex items-center justify-between px-6 border-b border-blue-600 shadow-lg">
+        <button onClick={() => { setShowSystem(false); resetPublicNav(); }} className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-blue-700 font-black text-sm shadow-md">D</div>
+          <span className="text-lg font-black text-white tracking-tight">DiaCare</span>
+        </button>
+        <button 
+          onClick={handleLogout}
+          className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white text-xl hover:bg-white/20 transition-all"
+          title="Sair"
+        >
+          🚪
+        </button>
+      </header>
+
       <nav className="fixed bottom-0 left-0 w-full bg-blue-700 border-t border-blue-600/50 z-50 md:top-0 md:bottom-auto md:w-64 md:h-full md:border-t-0 md:border-r flex md:flex-col shadow-2xl md:shadow-none transition-colors duration-300">
         <div className="hidden md:flex flex-col p-8 border-b border-blue-600/30 mb-4 gap-6">
           <button onClick={() => { setShowSystem(false); resetPublicNav(); }} className="flex items-center gap-3 text-left">
@@ -304,7 +315,6 @@ const App: React.FC = () => {
         </div>
 
         <div className="hidden md:block p-6 mt-auto border-t border-blue-600/30 space-y-6">
-          {/* Internal API Status */}
           {isApiConnected && (
             <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-3 rounded-2xl">
               <div className="relative flex h-2 w-2">
@@ -325,7 +335,7 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      <main className="flex-1 p-6 md:p-12 overflow-y-auto">
+      <main className="flex-1 p-6 md:p-12 pt-20 md:pt-12 overflow-y-auto">
         {activeTab === 'dashboard' && (
           <Dashboard user={userProfile} logs={logs} onDelete={deleteLog} onEdit={handleEditLog} onNewRecord={handleNewLog} />
         )}

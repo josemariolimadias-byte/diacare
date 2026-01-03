@@ -4,9 +4,11 @@ import React from 'react';
 interface LandingPageProps {
   onEnterSystem: () => void;
   onContactClick: () => void;
+  onPrivacyClick: () => void;
+  onTermsClick: () => void;
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem, onContactClick }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem, onContactClick, onPrivacyClick, onTermsClick }) => {
   const apiKey = process.env.API_KEY || '';
   const lastFourDigits = apiKey.slice(-4);
   const isApiConnected = apiKey.length > 0;
@@ -191,8 +193,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem, onContactClick
             <div>
               <h4 className="text-xs font-black uppercase tracking-widest text-blue-400 mb-6">Legal</h4>
               <ul className="space-y-4 text-sm font-bold text-slate-300">
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Privacidade</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Termos de Uso</a></li>
+                <li><button onClick={onPrivacyClick} className="hover:text-blue-400 transition-colors text-left">Privacidade</button></li>
+                <li><button onClick={onTermsClick} className="hover:text-blue-400 transition-colors text-left">Termos de Uso</button></li>
               </ul>
             </div>
           </div>

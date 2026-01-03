@@ -10,6 +10,8 @@ import Onboarding from './components/Onboarding';
 import Auth from './components/Auth';
 import LandingPage from './components/LandingPage';
 import ContactPage from './components/ContactPage';
+import PrivacyPage from './components/PrivacyPage';
+import TermsPage from './components/TermsPage';
 
 const NavItem: React.FC<{ active: boolean; onClick: () => void; icon: string; label: string }> = ({ active, onClick, icon, label }) => (
   <button
@@ -27,6 +29,9 @@ const NavItem: React.FC<{ active: boolean; onClick: () => void; icon: string; la
 const App: React.FC = () => {
   const [showSystem, setShowSystem] = useState(false);
   const [showContact, setShowContact] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+  
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -82,12 +87,26 @@ const App: React.FC = () => {
     fetchData();
   }, [authUser]);
 
-  // Seção Pública (Landing ou Contato)
+  const resetPublicNav = () => {
+    setShowContact(false);
+    setShowPrivacy(false);
+    setShowTerms(false);
+  };
+
+  // Seção Pública (Landing ou Páginas Legais/Contato)
   if (!showSystem && !authUser) {
-    if (showContact) {
-      return <ContactPage onBack={() => setShowContact(false)} />;
-    }
-    return <LandingPage onEnterSystem={() => setShowSystem(true)} onContactClick={() => setShowContact(true)} />;
+    if (showContact) return <ContactPage onBack={resetPublicNav} />;
+    if (showPrivacy) return <PrivacyPage onBack={resetPublicNav} />;
+    if (showTerms) return <TermsPage onBack={resetPublicNav} />;
+    
+    return (
+      <LandingPage 
+        onEnterSystem={() => setShowSystem(true)} 
+        onContactClick={() => setShowContact(true)}
+        onPrivacyClick={() => setShowPrivacy(true)}
+        onTermsClick={() => setShowTerms(true)}
+      />
+    );
   }
 
   if (loading && !authUser) {
@@ -99,7 +118,7 @@ const App: React.FC = () => {
   }
 
   if (!authUser) {
-    return <Auth onLogin={setAuthUser} onBack={() => { setShowSystem(false); setShowContact(false); }} />;
+    return <Auth onLogin={setAuthUser} onBack={() => { setShowSystem(false); resetPublicNav(); }} />;
   }
 
   if (loading) {
@@ -128,7 +147,7 @@ const App: React.FC = () => {
     if (window.confirm('Deseja realmente sair?')) {
       await StorageService.logout();
       setShowSystem(false);
-      setShowContact(false);
+      resetPublicNav();
     }
   };
 
@@ -180,7 +199,7 @@ const App: React.FC = () => {
     <div className="min-h-screen pb-24 md:pb-12 md:pl-64 bg-slate-50 flex flex-col items-stretch font-['Inter'] relative">
       <nav className="fixed bottom-0 left-0 w-full bg-blue-700 border-t border-blue-600/50 z-50 md:top-0 md:bottom-auto md:w-64 md:h-full md:border-t-0 md:border-r flex md:flex-col shadow-2xl md:shadow-none transition-colors duration-300">
         <div className="hidden md:flex flex-col p-8 border-b border-blue-600/30 mb-4 gap-6">
-          <button onClick={() => setShowSystem(false)} className="flex items-center gap-3 text-left">
+          <button onClick={() => { setShowSystem(false); resetPublicNav(); }} className="flex items-center gap-3 text-left">
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-blue-700 font-black text-sm shadow-xl">D</div>
             <span className="text-xl font-black text-white tracking-tight">DiaCare</span>
           </button>

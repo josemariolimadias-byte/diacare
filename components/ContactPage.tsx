@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
 
@@ -11,6 +11,10 @@ interface ContactPageProps {
 }
 
 const ContactPage: React.FC<ContactPageProps> = ({ onBack, onEnterSystem, onPrivacyClick, onTermsClick }) => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 font-['Inter'] selection:bg-blue-100 selection:text-blue-700 flex flex-col">
       <PublicHeader 

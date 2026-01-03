@@ -122,6 +122,7 @@ const App: React.FC = () => {
     setShowContact(false);
     setShowPrivacy(false);
     setShowTerms(false);
+    window.scrollTo(0, 0);
   };
 
   const handleEnterSystem = () => {
@@ -176,9 +177,9 @@ const App: React.FC = () => {
     return (
       <LandingPage 
         onEnterSystem={handleEnterSystem} 
-        onContactClick={() => setShowContact(true)}
-        onPrivacyClick={() => setShowPrivacy(true)}
-        onTermsClick={() => setShowTerms(true)}
+        onContactClick={() => { resetPublicNav(); setShowContact(true); }}
+        onPrivacyClick={() => { resetPublicNav(); setShowPrivacy(true); }}
+        onTermsClick={() => { resetPublicNav(); setShowTerms(true); }}
         onHomeClick={resetPublicNav}
       />
     );
@@ -277,21 +278,21 @@ const App: React.FC = () => {
     <div className="min-h-screen pb-24 md:pb-12 md:pl-64 bg-slate-50 flex flex-col items-stretch font-['Inter'] relative">
       
       {/* Mobile Top Header for Logout/Home Access */}
-      <header className="md:hidden fixed top-0 left-0 w-full h-16 bg-blue-700 z-50 flex items-center justify-between px-6 border-b border-blue-600 shadow-lg">
+      <header className="md:hidden fixed top-0 left-0 w-full h-16 bg-blue-700 z-[100] flex items-center justify-between px-6 border-b border-blue-600 shadow-lg">
         <button onClick={() => { setShowSystem(false); resetPublicNav(); }} className="flex items-center gap-2">
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-blue-700 font-black text-sm shadow-md">D</div>
           <span className="text-lg font-black text-white tracking-tight">DiaCare</span>
         </button>
         <button 
           onClick={handleLogout}
-          className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white text-xl hover:bg-white/20 transition-all"
+          className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white text-xl hover:bg-white/30 transition-all border border-white/20"
           title="Sair"
         >
           🚪
         </button>
       </header>
 
-      <nav className="fixed bottom-0 left-0 w-full bg-blue-700 border-t border-blue-600/50 z-50 md:top-0 md:bottom-auto md:w-64 md:h-full md:border-t-0 md:border-r flex md:flex-col shadow-2xl md:shadow-none transition-colors duration-300">
+      <nav className="fixed bottom-0 left-0 w-full bg-blue-700 border-t border-blue-600/50 z-[90] md:top-0 md:bottom-auto md:w-64 md:h-full md:border-t-0 md:border-r flex md:flex-col shadow-2xl md:shadow-none transition-colors duration-300">
         <div className="hidden md:flex flex-col p-8 border-b border-blue-600/30 mb-4 gap-6">
           <button onClick={() => { setShowSystem(false); resetPublicNav(); }} className="flex items-center gap-3 text-left">
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-blue-700 font-black text-sm shadow-xl">D</div>
@@ -335,7 +336,7 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      <main className="flex-1 p-6 md:p-12 pt-20 md:pt-12 overflow-y-auto">
+      <main className="flex-1 p-6 md:p-12 pt-24 md:pt-12 overflow-y-auto">
         {activeTab === 'dashboard' && (
           <Dashboard user={userProfile} logs={logs} onDelete={deleteLog} onEdit={handleEditLog} onNewRecord={handleNewLog} />
         )}

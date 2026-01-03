@@ -35,10 +35,10 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ onHome, onContact, onEnterS
 
   return (
     <>
-      <header className="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md z-50 border-b border-slate-100">
+      <header className="fixed top-0 left-0 w-full bg-white z-[60] border-b border-slate-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-2 cursor-pointer" onClick={onHome}>
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => { onHome(); setIsMenuOpen(false); }}>
             <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-200">D</div>
             <span className="text-2xl font-black text-slate-800 tracking-tight">DiaCare</span>
           </div>
@@ -72,7 +72,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ onHome, onContact, onEnterS
           {/* Mobile Menu Button */}
           <button 
             onClick={toggleMenu} 
-            className="md:hidden p-2 text-slate-600 focus:outline-none relative z-[60]"
+            className="md:hidden p-2 text-slate-600 focus:outline-none relative z-[80]"
             aria-label="Menu"
           >
             {isMenuOpen ? (
@@ -84,22 +84,22 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ onHome, onContact, onEnterS
         </div>
       </header>
 
-      {/* Mobile Menu Overlay - Corrigido para ser robusto em telas pequenas */}
+      {/* Mobile Menu Overlay - Sólido e Completo */}
       <div 
-        className={`fixed inset-0 bg-white z-[55] md:hidden transition-all duration-300 ease-in-out ${
+        className={`fixed inset-0 bg-white z-[70] md:hidden transition-all duration-300 ease-in-out ${
           isMenuOpen 
             ? 'opacity-100 visible' 
             : 'opacity-0 invisible pointer-events-none'
         }`}
       >
-        <div className="flex flex-col h-full w-full pt-24 px-8 pb-10 overflow-y-auto">
+        <div className="flex flex-col h-full w-full pt-24 px-8 pb-32 overflow-y-auto">
           <nav className="flex flex-col gap-1">
             {navLinks.map((link) => (
               <a 
                 key={link.href}
                 href={link.href} 
                 onClick={(e) => handleNavClick(e, link.href)}
-                className="text-3xl font-black text-slate-800 hover:text-blue-600 transition-colors uppercase tracking-tighter py-5 border-b border-slate-50"
+                className="text-3xl font-black text-slate-800 hover:text-blue-600 transition-colors uppercase tracking-tighter py-6 border-b border-slate-50"
               >
                 {link.label}
               </a>
@@ -107,7 +107,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ onHome, onContact, onEnterS
             
             <button 
               onClick={() => { onContact(); setIsMenuOpen(false); }}
-              className="text-left text-3xl font-black text-slate-800 hover:text-blue-600 transition-colors uppercase tracking-tighter py-5 border-b border-slate-50 block w-full"
+              className="text-left text-3xl font-black text-slate-800 hover:text-blue-600 transition-colors uppercase tracking-tighter py-6 border-b border-slate-50 block w-full"
             >
               Contato
             </button>
@@ -118,11 +118,11 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ onHome, onContact, onEnterS
               onClick={() => { onEnterSystem(); setIsMenuOpen(false); }}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 rounded-2xl text-base font-black uppercase tracking-widest transition-all shadow-xl shadow-blue-100"
             >
-              Acessar Sistema
+              Entrar no Sistema
             </button>
           </div>
           
-          <div className="mt-auto pt-12 text-center">
+          <div className="mt-12 text-center">
             <div className="flex justify-center gap-4 mb-4">
                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 font-black text-base">D</div>
             </div>

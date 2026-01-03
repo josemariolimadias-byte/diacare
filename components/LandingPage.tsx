@@ -13,7 +13,7 @@ interface LandingPageProps {
 
 const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem, onContactClick, onPrivacyClick, onTermsClick, onHomeClick }) => {
   return (
-    <div className="min-h-screen bg-white font-['Inter'] selection:bg-blue-100 selection:text-blue-700">
+    <div className="min-h-screen bg-white font-['Inter'] selection:bg-blue-100 selection:text-blue-700 scroll-smooth">
       <PublicHeader 
         onHome={onHomeClick} 
         onContact={onContactClick} 
@@ -89,7 +89,82 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem, onContactClick
         </div>
       </section>
 
-      <section id="sobre" className="py-24 px-6 overflow-hidden">
+      {/* SEÇÃO 4: PLANOS DE ASSINATURA */}
+      <section id="planos" className="py-24 px-6 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16 space-y-4">
+            <h2 className="text-xs font-black text-blue-600 uppercase tracking-[0.3em]">Planos</h2>
+            <p className="text-4xl font-black text-slate-900 tracking-tighter">Escolha o seu <span className="text-blue-600">nível de controle</span></p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Card Plano Free */}
+            <div className="bg-white p-12 rounded-[3rem] border border-slate-100 shadow-xl hover:shadow-2xl transition-all group flex flex-col justify-between">
+              <div>
+                <div className="flex justify-between items-start mb-8">
+                  <div>
+                    <h3 className="text-2xl font-black text-slate-800 tracking-tight mb-2">Plano Free 30</h3>
+                    <p className="text-slate-400 font-medium text-sm">Experimente o poder da IA</p>
+                  </div>
+                  <span className="bg-slate-100 text-slate-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">Grátis</span>
+                </div>
+                
+                <div className="text-4xl font-black text-slate-900 mb-8">30 dias <span className="text-sm text-slate-400 font-bold uppercase tracking-widest">de uso</span></div>
+                
+                <ul className="space-y-4 mb-12">
+                  <PlanFeature label="Infográficos detalhados" />
+                  <PlanFeature label="Recomendações médicas" />
+                  <PlanFeature label="Calculadora de carboidratos" />
+                </ul>
+              </div>
+
+              <button 
+                onClick={onEnterSystem}
+                className="w-full py-5 bg-slate-900 text-white rounded-2xl text-sm font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-200"
+              >
+                Acessar Sistema
+              </button>
+            </div>
+
+            {/* Card Plano Controle */}
+            <div className="bg-blue-600 p-12 rounded-[3rem] text-white shadow-2xl shadow-blue-200 hover:scale-[1.02] transition-all flex flex-col justify-between relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 opacity-10">
+                <div className="text-9xl font-black italic">D</div>
+              </div>
+              
+              <div className="relative z-10">
+                <div className="flex justify-between items-start mb-8">
+                  <div>
+                    <h3 className="text-2xl font-black tracking-tight mb-2">Plano Controle</h3>
+                    <p className="text-blue-100 font-medium text-sm">Monitoramento sem limites</p>
+                  </div>
+                  <span className="bg-white/20 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest backdrop-blur-md border border-white/20">Popular</span>
+                </div>
+                
+                <div className="text-4xl font-black mb-8">R$ 45,00 <span className="text-sm text-blue-100 font-bold uppercase tracking-widest">/ Mês</span></div>
+                
+                <ul className="space-y-4 mb-12 text-blue-50">
+                  <PlanFeature label="Uso ilimitado (Vitalício)" />
+                  <PlanFeature label="Infográficos avançados" />
+                  <PlanFeature label="Recomendações médicas" />
+                  <PlanFeature label="IA de carboidratos ilimitada" />
+                </ul>
+              </div>
+
+              <a 
+                href="https://wa.me/5571999560936?text=Olá,%20gostaria%20de%20assinar%20o%20Plano%20Controle%20do%20DiaCare."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-5 bg-white text-blue-600 rounded-2xl text-sm font-black text-center uppercase tracking-widest hover:bg-slate-50 transition-all shadow-xl shadow-blue-900/20 block"
+              >
+                Contratar Agora
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="sobre" className="py-24 px-6 overflow-hidden bg-slate-50">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
            <div className="flex-1 space-y-6">
               <h2 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">Desenvolvido por quem entende de <span className="text-blue-600">diabetes</span>.</h2>
@@ -127,6 +202,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterSystem, onContactClick
     </div>
   );
 };
+
+const PlanFeature: React.FC<{ label: string }> = ({ label }) => (
+  <li className="flex items-center gap-3 text-sm font-bold">
+    <div className="w-5 h-5 bg-blue-500/10 rounded-full flex items-center justify-center text-[10px]">✓</div>
+    {label}
+  </li>
+);
 
 const FeatureCard: React.FC<{ icon: string; title: string; desc: string }> = ({ icon, title, desc }) => (
   <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">

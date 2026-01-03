@@ -9,9 +9,7 @@ interface PublicHeaderProps {
 
 const PublicHeader: React.FC<PublicHeaderProps> = ({ onHome, onContact, onEnterSystem }) => {
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
-    // Se estivermos em uma subpágina (Contato, Privacidade, etc), voltamos para a Home primeiro
     onHome();
-    // O navegador tentará seguir o link da âncora naturalmente após o re-render da LandingPage
   };
 
   return (
@@ -43,6 +41,13 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ onHome, onContact, onEnterS
             className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest"
           >
             Recursos
+          </a>
+          <a 
+            href="#planos" 
+            onClick={(e) => handleNavClick(e, 'planos')}
+            className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors uppercase tracking-widest"
+          >
+            Planos
           </a>
           <button 
             onClick={onContact}

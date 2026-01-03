@@ -27,9 +27,7 @@ export const StorageService = {
   },
 
   getCurrentAuthUser(): AuthUser | null {
-    // Para SSR ou inicialização síncrona, mas o ideal é usar o listener no App.tsx
     const user = supabase.auth.getUser();
-    // Nota: getUser() é async, aqui retornamos nulo para deixar o listener do App.tsx assumir
     return null; 
   },
 
@@ -42,14 +40,14 @@ export const StorageService = {
       .eq('id', userId)
       .single();
     
-    if (error && error.code !== 'PGRST116') { // PGRST116 é "não encontrado"
+    if (error && error.code !== 'PGRST116') { 
       console.error("Erro ao buscar perfil:", error);
       return null;
     }
 
     if (!data) return null;
 
-    // Mapear snake_case do DB para camelCase do TS
+    // Fix: Correct mapping of database fields to UserProfile interface properties (glucoseUnit and carbUnit)
     return {
       userId: data.id,
       fullName: data.full_name,
@@ -67,7 +65,8 @@ export const StorageService = {
       targetRangeMin: data.target_range_min,
       targetRangeMax: data.target_range_max,
       height: data.height,
-      weight: data.weight
+      weight: data.weight,
+      trialExpiresAt: data.trial_expires_at // Mapeamento da nova coluna
     } as UserProfile;
   },
 
@@ -91,7 +90,8 @@ export const StorageService = {
         target_range_min: profile.targetRangeMin,
         target_range_max: profile.targetRangeMax,
         height: profile.height,
-        weight: profile.weight
+        weight: profile.weight,
+        trial_expires_at: profile.trialExpiresAt // Salva a data de expiração
       });
     
     if (error) throw error;
@@ -143,6 +143,7 @@ export const StorageService = {
   },
 
   async updateLog(log: LogEntry): Promise<void> {
+    // Fix: Correct mapping of camelCase LogEntry properties to snake_case database fields
     const { error } = await supabase
       .from('logs')
       .update({

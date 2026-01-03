@@ -47,6 +47,7 @@ export interface UserProfile {
   targetRangeMax: number;
   height: number;
   weight: number;
+  trialExpiresAt?: string; // Novo campo para controle manual da data de expiração
 }
 
 export interface LogEntry {
